@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Song Video Studio Pro 🎬</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&family=Moul&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+:root{
+  --a:#ff4f9a;--b:#ffd66b;--c:#5be7ff;--ink:#fff7ee;
+  --glass:rgba(255,255,255,.08);--glass2:rgba(255,255,255,.14);
+  --bd:rgba(255,255,255,.18);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  background:radial-gradient(circle at 50% 0%,#1c0b3b 0%,#07021a 65%);
+  color:var(--ink);
+  font-family:'Kantumruy Pro','Noto Sans Khmer','Khmer OS Battambang',sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+#ed{max-width:700px;margin:0 auto;padding:20px 16px 72px;height:100%;overflow:auto}
+h2{font-family:'Moul','Kantumruy Pro',serif;color:var(--b);font-size:clamp(19px,5vw,27px);text-align:center;margin:6px 0 4px;font-weight:400}
+.sub{text-align:center;opacity:.78;margin:0 0 18px;font-size:14px}
+.card{background:var(--glass);border:1px solid var(--bd);border-radius:18px;padding:15px;margin-bottom:13px;backdrop-filter:blur(10px)}
+.card-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;flex-wrap:wrap}
+label.t{display:block;font-weight:700;margin-bottom:8px;font-size:14px;color:var(--b)}
+.card-hd label.t{margin-bottom:0}
+input[type=text],input[type=number],textarea,select{
+  width:100%;font:inherit;color:var(--ink);
+  background:rgba(0,0,0,.38);border:1px solid rgba(255,255,255,.24);
+  border-radius:12px;padding:10px 12px;
+}
+textarea{min-height:155px;resize:vertical;line-height:1.65}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row+.row{margin-top:8px}
+button{
+  font:inherit;font-weight:700;color:#2a0a2e;
+  background:linear-gradient(135deg,var(--b),#ff9ecb);
+  border:0;border-radius:999px;padding:12px 22px;cursor:pointer;
+  box-shadow:0 6px 20px rgba(255,79,154,.38);
+  transition:transform .12s,opacity .15s;
+}
+button:active{transform:scale(.97)}
+button.alt{background:var(--glass);color:var(--ink);box-shadow:none;border:1px solid rgba(255,255,255,.26)}
+button.sm{padding:6px 12px;font-size:12.5px;border-radius:10px}
+.chip{flex:1 1 auto;background:var(--glass);color:var(--ink);box-shadow:none;border:1px solid rgba(255,255,255,.22);padding:9px 12px;font-size:13.5px;border-radius:12px;text-align:center}
+.chip.on{background:linear-gradient(135deg,var(--b),var(--a));color:#2a0a2e;border-color:transparent;box-shadow:0 4px 14px rgba(255,79,154,.35)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--c);outline-offset:2px}
+.file{display:block;border:2px dashed rgba(255,255,255,.32);border-radius:14px;padding:13px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
+.file:hover{border-color:var(--b);background:rgba(255,255,255,.04)}
+.file input{display:none}
+.file small{display:block;opacity:.75;margin-top:4px;font-size:12.5px}
+.hint{opacity:.72;display:block;margin-top:7px;font-size:12.5px;line-height:1.55}
+.chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;opacity:.9;user-select:none}
+.chk input{accent-color:var(--a);width:16px;height:16px}
+.go{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.go button{flex:1 1 200px}
+
+/* Photo thumbnails */
+#pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-top:10px}
+#pgrid:empty{display:none}
+.pth{position:relative;aspect-ratio:1;border-radius:11px;overflow:hidden;border:1px solid rgba(255,255,255,.24);background:#120828}
+.pth img{width:100%;height:100%;object-fit:cover;display:block}
+.pth .pbar{position:absolute;inset:auto 0 0 0;display:flex;justify-content:space-between;background:linear-gradient(transparent,rgba(0,0,0,.85));padding:12px 3px 3px}
+.pth button{padding:2px 6px;font-size:11px;border-radius:6px;background:rgba(255,255,255,.18);color:#fff;box-shadow:none;min-width:24px}
+.pth button.del{background:rgba(255,60,100,.78)}
+.pth .pnum{position:absolute;top:4px;left:5px;background:rgba(0,0,0,.65);color:var(--b);font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:99px}
+
+/* Preview Stage Overlay */
+#show{position:fixed;inset:0;z-index:20;background:#04010d;display:none;align-items:center;justify-content:center;overflow:hidden;user-select:none}
+#show.on{display:flex}
+#stageWrap{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+#stage{display:block;max-width:100%;max-height:100%;box-shadow:0 0 60px rgba(0,0,0,.9);cursor:pointer}
+#hudTop{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:12px;z-index:8;display:flex;gap:8px}
+#hudTop button{padding:8px 13px;background:rgba(10,4,28,.65);color:var(--ink);box-shadow:none;border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(8px);font-size:14px}
+#hudBot{
+  position:absolute;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:8;
+  display:flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;
+  background:rgba(10,4,28,.68);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(10px);
+  transition:opacity .3s;
+}
+#pbtn{padding:6px 12px;font-size:14px;min-width:40px}
+#tcur{font-size:12.5px;font-variant-numeric:tabular-nums;white-space:nowrap;opacity:.9;min-width:82px;text-align:center}
+#seek{flex:1;accent-color:var(--a);cursor:pointer;height:6px;margin:0}
+#endBar{
+  position:absolute;inset:auto 0 14% 0;z-index:9;display:none;justify-content:center;gap:10px;padding:0 16px;pointer-events:none;
+}
+#endBar.on{display:flex}
+#endBar button{pointer-events:auto}
+.recording #hudTop,.recording #hudBot,.recording #endBar{display:none!important}
+
+/* Tap-to-sync modal */
+#sync{position:fixed;inset:0;z-index:30;background:rgba(7,2,26,.97);display:none;align-items:center;justify-content:center;padding:20px}
+#sync.on{display:flex}
+.sbox{width:min(580px,100%);text-align:center;display:flex;flex-direction:column;gap:12px}
+.sh{opacity:.78;margin:0;font-size:13.5px;line-height:1.5}
+.sl{min-height:1.6em;line-height:1.55;padding:0 6px}
+.sl.dim{opacity:.42;font-size:15.5px}
+.sl.cur{font-size:clamp(22px,6.2vw,34px);font-weight:700;color:var(--b);text-shadow:0 0 18px var(--a)}
+#tp{padding:26px;font-size:22px;border-radius:24px;touch-action:manipulation}
+
+/* MP4 Export modal */
+#exp{position:fixed;inset:0;z-index:40;background:rgba(7,2,26,.97);display:none;align-items:center;justify-content:center;padding:20px;text-align:center}
+#exp.on{display:flex}
+.ebox{width:min(520px,100%);display:flex;flex-direction:column;gap:14px}
+.eb0{height:13px;border-radius:9px;background:rgba(255,255,255,.14);overflow:hidden}
+#eb{height:100%;width:0;background:linear-gradient(90deg,var(--a),var(--b),var(--c));transition:width .15s}
+</style>
+</head>
+<body>
+<div id="ed">
+  <h2>🎬 Song Video Studio Pro</h2>
+  <p class="sub">បង្កើតវីដេអូចម្រៀង និង Karaoke ខ្មែរ កម្រិតច្បាស់ 4K ដោយគ្មានកូដ</p>
+
+  <!-- 1. Title -->
+  <div class="card">
+    <div class="card-hd">
+      <label class="t" for="ti">១. ចំណងជើងវីដេអូ</label>
+      <label class="chk"><input type="checkbox" id="topOn" checked> បង្ហាញចំណងជើងតូចខាងលើពេលច្រៀង</label>
+    </div>
+    <input type="text" id="ti" value="ចម្រៀងរបស់ខ្ញុំ" placeholder="ចំណងជើងបទចម្រៀង">
+    <div style="height:8px"></div>
+    <input type="text" id="su" placeholder="ចំណងជើងរង / អ្នកចម្រៀង (ឧ. សម្រាប់មនុស្សពិសេស)">
+  </div>
+
+  <!-- 2. Theme & Effects -->
+  <div class="card">
+    <label class="t">២. រចនាប័ទ្មពណ៌ និងបែបផែន (Theme & Effects)</label>
+    <div class="row" id="th"></div>
+    <div class="row" id="fxm" style="margin-top:10px">
+      <button type="button" class="chip on" data-fx="full">🎉 ពេញលេញ (កាំជ្រួច + រូបធ្លាក់)</button>
+      <button type="button" class="chip" data-fx="soft">✨ ស្រទន់ (ផ្កាយ + ពន្លឺ)</button>
+      <button type="button" class="chip" data-fx="clean">🌙 ស្អាតធម្មតា (គ្មានកាំជ្រួច)</button>
+    </div>
+  </div>
+
+  <!-- 3. Aspect Ratio -->
+  <div class="card">
+    <label class="t">៣. ទំហំសមាមាត្រវីដេអូ (Aspect Ratio)</label>
+    <div class="row" id="ar">
+      <button type="button" class="chip on" data-ar="16:9">🖥️ 16:9 (YouTube / TV)</button>
+      <button type="button" class="chip" data-ar="9:16">📱 9:16 (TikTok / Reels)</button>
+      <button type="button" class="chip" data-ar="1:1">🟦 1:1 (Facebook / IG)</button>
+    </div>
+  </div>
+
+  <!-- 4. Audio & Beat -->
+  <div class="card">
+    <label class="t">៤. ចម្រៀង និងចង្វាក់ភ្លេង (Audio & Beat)</label>
+    <label class="file">
+      <input type="file" id="fs" accept="audio/*">
+      🎵 ជ្រើសឯកសារចម្រៀង (MP3 / WAV / M4A)
+      <small id="si">មិនទាន់ជ្រើស</small>
+    </label>
+    <div class="row" id="btm" style="margin-top:10px">
+      <button type="button" class="chip on" data-bm="auto">🎵 លោតតាមភ្លេងស្វ័យប្រវត្តិ + Wave</button>
+      <button type="button" class="chip" data-bm="bpm">🥁 លោតតាម BPM</button>
+      <button type="button" class="chip" data-bm="off">🚫 បិទការលោត</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div style="flex:1 1 160px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:13px;white-space:nowrap;opacity:.85">BPM:</span>
+        <input type="number" id="bp" value="100" min="45" max="220">
+      </div>
+      <button type="button" class="alt chip" id="tapBpm" style="flex:0 1 auto">🥁 ចុចវាស់ចង្វាក់ (Tap BPM)</button>
+    </div>
+  </div>
+
+  <!-- 5. Photos & Frame Style -->
+  <div class="card">
+    <div class="card-hd">
+      <label class="t">៥. រូបថត និងម៉ូតស៊ុម (Photos)</label>
+      <button type="button" class="alt sm" id="pclr" style="display:none">🗑️ លុបរូបទាំងអស់</button>
+    </div>
+    <div class="row" id="pst" style="margin-bottom:10px">
+      <button type="button" class="chip on" data-ps="polaroid">🖼️ Polaroid</button>
+      <button type="button" class="chip" data-ps="modern">✨ ទំនើប (ព្រាលផ្ទៃក្រោយ)</button>
+      <button type="button" class="chip" data-ps="cinema">🎬 ពេញអេក្រង់ (Cinema)</button>
+    </div>
+    <label class="file">
+      <input type="file" id="fp" accept="image/*" multiple>
+      📸 បន្ថែមរូបថត (ជ្រើសម្ដងច្រើនសន្លឹកបាន)
+      <small id="pi">មិនទាន់ជ្រើស · អាចតម្រៀបលំដាប់ ឬលុបរូបនីមួយៗបាន</small>
+    </label>
+    <div id="pgrid"></div>
+  </div>
+
+  <!-- 6. Lyrics / Subtitle -->
+  <div class="card">
+    <div class="card-hd">
+      <label class="t" for="ly0">៦. ពាក្យចម្រៀង / Subtitle</label>
+      <div class="row" style="gap:6px">
+        <button type="button" class="alt sm" id="dlLrc" title="រក្សាទុកជាឯកសារ .LRC">⬇ .LRC</button>
+        <button type="button" class="alt sm" id="dlSrt" title="រក្សាទុកជាឯកសារ .SRT">⬇ .SRT</button>
+      </div>
+    </div>
+    <button type="button" class="chip" id="sy" style="width:100%;margin-bottom:10px">⏱ កំណត់ម៉ោងដោយចុចតាមចម្រៀង (Tap-to-sync)</button>
+    <label class="file" style="padding:10px;margin-bottom:10px">
+      <input type="file" id="fr" accept=".srt,.vtt,.lrc,text/plain">
+      📝 នាំចូលឯកសារ Subtitle (.SRT / .VTT / .LRC)
+      <small id="ri">មិនទាន់ជ្រើស · បើជ្រើស នឹងប្រើជំនួសប្រអប់ខាងក្រោម</small>
+    </label>
+    <div class="row" id="srtBar" style="display:none;margin-bottom:10px">
+      <button type="button" class="alt sm chip" id="r2t">✎ ចម្លងចូលប្រអប់អត្ថបទដើម្បីកែ</button>
+      <button type="button" class="alt sm chip" id="rx">✕ ជម្រះឯកសារដែលនាំចូល</button>
+    </div>
+    <textarea id="ly0" placeholder="វាយពាក្យចម្រៀងមួយបន្ទាត់មួយឃ្លា៖&#10;ឃ្លាទី ១&#10;ឃ្លាទី ២&#10;&#10;ឬដាក់ម៉ោង (ន:វវ ឬ LRC)៖&#10;0:12.5 ឃ្លាដំបូង&#10;0:18.0 -- (ដាក់ -- សម្រាប់លាក់អក្សរពេលភ្លេងសុទ្ធ)&#10;0:25.0 ឃ្លាបន្ទាប់"></textarea>
+    <small class="hint">គាំទ្រការកាត់បន្ទាត់អក្សរខ្មែរស្វ័យប្រវត្តិ (មិនបង្រួមអក្សរតូចពេក) · អាចផាស (Paste) អត្ថបទ SRT ឬ LRC ចូលផ្ទាល់ក៏បាន · រក្សាទុកព្រាងស្វ័យប្រវត្តិក្នុង Browser។</small>
+  </div>
+
+  <!-- 7. MP4 Export & Actions -->
+  <div class="card">
+    <label class="t">៧. ផលិត និងទាញយកជាវីដេអូ MP4</label>
+    <div class="row">
+      <select id="rs" style="flex:1 1 210px">
+        <option value="2160">4K Ultra HD (2160p)</option>
+        <option value="1440">2K QHD (1440p)</option>
+        <option value="1080" selected>Full HD (1080p · ណែនាំ)</option>
+        <option value="720">HD (720p · លឿនស្រាល)</option>
+      </select>
+      <button type="button" id="mp" style="flex:1 1 200px">💾 ផលិត និងទាញយក MP4</button>
+    </div>
+    <small class="hint">ប្រើបច្ចេកវិទ្យា WebCodecs (H.264 + AAC) លើ Chrome / Edge · រូបភាព និងអក្សរក្នុង Preview និង MP4 ដូចគ្នា 100% តាមសមាមាត្រដែលបានជ្រើស។</small>
+  </div>
+
+  <div class="go">
+    <button type="button" id="pv">▶ ចាក់មើលវីដេអូ (Preview)</button>
+    <button type="button" class="alt" id="rc" style="display:none">🎥 ថតអេក្រង់ (.webm)</button>
+  </div>
+  <div style="text-align:center;margin-top:16px">
+    <button type="button" class="alt sm" id="rstDraft">↺ កំណត់អត្ថបទ និងការកំណត់ដើមវិញ</button>
+  </div>
+</div>
+
+<!-- Unified Stage Preview -->
+<div id="show">
+  <div id="stageWrap"><canvas id="stage"></canvas></div>
+  <div id="hudTop">
+    <button type="button" id="mu" aria-label="សម្លេង" title="បិទ/បើកសម្លេង">🔊</button>
+    <button type="button" id="fsBtn" aria-label="ពេញអេក្រង់" title="ពេញអេក្រង់">⛶</button>
+    <button type="button" id="x" aria-label="បិទ" title="បិទ (Esc)">✕</button>
+  </div>
+  <div id="endBar">
+    <button type="button" id="rp">↺ មើលម្ដងទៀត</button>
+    <button type="button" class="alt" id="bk">✎ ត្រឡប់ទៅកែ</button>
+  </div>
+  <div id="hudBot">
+    <button type="button" class="alt sm" id="pbtn" aria-label="ចាក់/ផ្អាក">⏸</button>
+    <span id="tcur">0:00 / 0:00</span>
+    <input type="range" id="seek" min="0" max="100" step="0.05" value="0" aria-label="រំកិលម៉ោង">
+  </div>
+</div>
+
+<!-- MP4 Export Progress -->
+<div id="exp">
+  <div class="ebox">
+    <h2 style="margin:0">🎞️ កំពុងផលិតវីដេអូ MP4</h2>
+    <p id="em" class="sh">កំពុងរៀបចំ...</p>
+    <div class="eb0"><div id="eb"></div></div>
+    <small class="sh" style="opacity:.65">សូមកុំបិទផ្ទាំងនេះរហូតដល់បញ្ចប់ · ប្រព័ន្ធការពារអេក្រង់រលត់ត្រូវបានបើក</small>
+    <button type="button" class="alt" id="ec">✕ បោះបង់</button>
+  </div>
+</div>
+
+<!-- Tap-to-Sync Overlay -->
+<div id="sync">
+  <div class="sbox">
+    <p class="sh">ស្ដាប់ចម្រៀង ហើយចុច <b>TAP</b> (ឬ Space/Enter) ពេលចាប់ផ្ដើមឃ្លានីមួយៗ · ចុច <b>ភ្លេងសុទ្ធ</b> (ឬអក្សរ B) ដើម្បីលាក់អក្សរពេលភ្លេងលេងសុទ្ធ</p>
+    <div class="sl dim" id="sp"></div>
+    <div class="sl cur" id="sc"></div>
+    <div class="sl dim" id="sn"></div>
+    <p class="sh" id="st"></p>
+    <button type="button" id="tp">TAP ▶ ចាប់ផ្ដើមឃ្លានេះ</button>
+    <div class="row">
+      <button type="button" class="alt chip" id="sbrk">⏸ ភ្លេងសុទ្ធ (លាក់អក្សរ)</button>
+      <button type="button" class="alt chip" id="sback">⏪ -5s</button>
+      <button type="button" class="alt chip" id="sfwd">⏩ +5s</button>
+    </div>
+    <div class="row">
+      <button type="button" class="alt chip" id="sundo">↶ ត្រឡប់ឃ្លាមុន</button>
+      <button type="button" class=" chip on" id="sdone">✓ រក្សាទុកម៉ោង</button>
+      <button type="button" class="alt chip" id="scancel">✕ បោះបង់</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id);};
+
+/* ===== Themes ===== */
+var TH={
+  bday:{n:'🎂 ខួបកំណើត',em:['🎉','🎊','❤️','🎂','🥳','🎈'],c:['#ff4f9a','#ffd66b','#5be7ff','#b78bff'],bg:['#4a1590','#12062c']},
+  love:{n:'💕 ស្នេហា',em:['💕','❤️','💖','🌹','💘'],c:['#ff4f7a','#ff9ecb','#ffd6e0','#ff2e63'],bg:['#7a0f3f','#2a0618']},
+  friend:{n:'🤝 មិត្តភាព',em:['🤝','⭐','😄','🌈','✨'],c:['#5be7ff','#ffd66b','#7dffb0','#ff9ecb'],bg:['#0b4a7a','#07142e']},
+  star:{n:'🌟 ទឹកចិត្ត',em:['🌟','✨','💫','🌙','🕊️'],c:['#ffd66b','#fff7ee','#b78bff','#5be7ff'],bg:['#2a2a7a','#0a0a24']},
+  party:{n:'🎶 សប្បាយ',em:['🎶','🎵','🎉','🔥','💃'],c:['#ff4f9a','#7dffb0','#ffd66b','#5be7ff'],bg:['#6a0f7a','#1a0630']},
+  trad:{n:'🪷 ប្រពៃណី',em:['🪷','✨','🙏','🌼','🏮'],c:['#ff9f43','#ffd700','#fff3cd','#ff6b6b'],bg:['#5c1228','#1c050d']},
+  chill:{n:'🌙 មនោសញ្ចេតនា',em:['🌙','✨','🍃','💧','🌸'],c:['#7ee8fa','#dbe6fd','#eec0c6','#a1c4fd'],bg:['#162447','#080d1a']}
+};
+
+/* ===== App State ===== */
+var state={
+  theme:'bday',
+  fxMode:'full',     // 'full' | 'soft' | 'clean'
+  aspect:'16:9',     // '16:9' | '9:16' | '1:1'
+  beatMode:'auto',   // 'auto' | 'bpm' | 'off'
+  photoStyle:'polaroid' // 'polaroid' | 'modern' | 'cinema'
+};
+var audio=null,audioFile=null,audioUrl='',dur=0;
+var beatEnv=null,beatBins=null,ENV_HZ=60;
+var photos=[]; // [{url, img, blur, name, size}]
+var srt=null,srtName='';
+var wakeLock=null;
+var OUTRO_SEC=5;
+var DRAFT_KEY='svs_pro_draft_v2';
+
+/* ===== Utilities ===== */
+function mmss(s){
+  s=Math.max(0,s||0);
+  return Math.floor(s/60)+':'+('0'+Math.floor(s%60)).slice(-2);
+}
+function fmtT(t){
+  t=Math.max(0,t||0);
+  return Math.floor(t/60)+':'+('0'+Math.floor(t%60)).slice(-2)+'.'+Math.floor((t%1)*10);
+}
+function fmtLrcT(t){
+  t=Math.max(0,t||0);
+  var m=Math.floor(t/60),s=t-m*60;
+  return '['+('0'+m).slice(-2)+':'+(s<10?'0':'')+s.toFixed(2)+']';
+}
+function fmtSrtT(t){
+  t=Math.max(0,t||0);
+  var h=Math.floor(t/3600),m=Math.floor((t%3600)/60),s=Math.floor(t%60),ms=Math.round((t%1)*1000);
+  if(ms===1000){s++;ms=0;}
+  return ('0'+h).slice(-2)+':'+('0'+m).slice(-2)+':'+('0'+s).slice(-2)+','+('00'+ms).slice(-3);
+}
+function MB(n){return (n/1048576).toFixed(1)+' MB';}
+function clamp(v,a,b){return v<a?a:v>b?b:v;}
+
+/* Fast non-throttled micro-yield for WebCodecs queues */
+var mc=new MessageChannel(),mq=[];
+mc.port1.onmessage=function(){var fn=mq.shift();if(fn)fn();};
+function fastYield(){return new Promise(function(r){mq.push(r);mc.port2.postMessage(0);});}
+function uiYield(){return document.hidden?fastYield():new Promise(function(r){setTimeout(r,0);});}
+
+async function reqWake(){
+  try{if(navigator.wakeLock&&!wakeLock)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}
+}
+function relWake(){
+  try{if(wakeLock){wakeLock.release();wakeLock=null;}}catch(e){}
+}
+
+/* ===== Draft Persistence (Safe localStorage) ===== */
+function saveDraft(){
+  try{
+    var d={
+      ti:$('ti').value,su:$('su').value,topOn:$('topOn').checked,
+      ly0:$('ly0').value,bp:$('bp').value,rs:$('rs').value,
+      theme:state.theme,fxMode:state.fxMode,aspect:state.aspect,
+      beatMode:state.beatMode,photoStyle:state.photoStyle
+    };
+    localStorage.setItem(DRAFT_KEY,JSON.stringify(d));
+  }catch(e){}
+}
+function loadDraft(){
+  try{
+    var raw=localStorage.getItem(DRAFT_KEY);
+    if(!raw)return;
+    var d=JSON.parse(raw);
+    if(typeof d.ti==='string')$('ti').value=d.ti;
+    if(typeof d.su==='string')$('su').value=d.su;
+    if(typeof d.topOn==='boolean')$('topOn').checked=d.topOn;
+    if(typeof d.ly0==='string')$('ly0').value=d.ly0;
+    if(d.bp)$('bp').value=d.bp;
+    if(d.rs)$('rs').value=d.rs;
+    if(d.theme&&TH[d.theme])state.theme=d.theme;
+    if(d.fxMode)state.fxMode=d.fxMode;
+    if(d.aspect)state.aspect=d.aspect;
+    if(d.beatMode)state.beatMode=d.beatMode;
+    if(d.photoStyle)state.photoStyle=d.photoStyle;
+  }catch(e){}
+}
+loadDraft();
+
+/* ===== Build Theme & Option Chips ===== */
+function renderThemes(){
+  var box=$('th');box.innerHTML='';
+  Object.keys(TH).forEach(function(k){
+    var b=document.createElement('button');
+    b.type='button';
+    b.className='chip'+(k===state.theme?' on':'');
+    b.textContent=TH[k].n;
+    b.onclick=function(){
+      state.theme=k;
+      [].forEach.call(box.children,function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      saveDraft();
+      if(player.open&&player.paused)player.drawOnce();
+    };
+    box.appendChild(b);
+  });
+}
+function bindChipGroup(id,attr,key,onChange){
+  var box=$(id);
+  [].forEach.call(box.querySelectorAll('[data-'+attr+']'),function(b){
+    var val=b.getAttribute('data-'+attr);
+    b.classList.toggle('on',val===state[key]);
+    b.onclick=function(){
+      state[key]=val;
+      [].forEach.call(box.children,function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      saveDraft();
+      if(onChange)onChange(val);
+    };
+  });
+}
+renderThemes();
+bindChipGroup('fxm','fx','fxMode');
+bindChipGroup('ar','ar','aspect',function(){if(player.open)resizeStage();});
+bindChipGroup('btm','bm','beatMode');
+bindChipGroup('pst','ps','photoStyle');
+['ti','su','ly0','bp','rs','topOn'].forEach(function(id){
+  $(id).addEventListener('input',saveDraft);
+  $(id).addEventListener('change',saveDraft);
+});
+$('rstDraft').onclick=function(){
+  if(!confirm('តើអ្នកពិតជាចង់កំណត់អត្ថបទ និងការកំណត់ទាំងអស់ឱ្យដូចដើមវិញមែនទេ?'))return;
+  try{localStorage.removeItem(DRAFT_KEY);}catch(e){}
+  $('ti').value='ចម្រៀងរបស់ខ្ញុំ';$('su').value='';$('topOn').checked=true;
+  $('ly0').value='';$('bp').value='100';$('rs').value='1080';
+  state={theme:'bday',fxMode:'full',aspect:'16:9',beatMode:'auto',photoStyle:'polaroid'};
+  renderThemes();
+  bindChipGroup('fxm','fx','fxMode');
+  bindChipGroup('ar','ar','aspect');
+  bindChipGroup('btm','bm','beatMode');
+  bindChipGroup('pst','ps','photoStyle');
+};
+
+/* ===== Tap BPM Helper ===== */
+var tapTimes=[];
+$('tapBpm').onclick=function(){
+  var now=performance.now();
+  if(tapTimes.length&&now-tapTimes[tapTimes.length-1]>2500)tapTimes=[];
+  tapTimes.push(now);
+  if(tapTimes.length>8)tapTimes.shift();
+  if(tapTimes.length>=2){
+    var sum=0;
+    for(var i=1;i<tapTimes.length;i++)sum+=tapTimes[i]-tapTimes[i-1];
+    var bpm=clamp(Math.round(60000/(sum/(tapTimes.length-1))),45,220);
+    $('bp').value=bpm;saveDraft();
+    this.textContent='🥁 '+bpm+' BPM (ចុចបន្ត)';
+  }else{
+    this.textContent='🥁 ចុចតាមចង្វាក់ម្ដងទៀត...';
+  }
+};
+
+/* ===== Audio Loading + Pre-computed Bass/Beat Envelope + Auto BPM ===== */
+async function analyzeAudioFile(file){
+  try{
+    var ab=await file.arrayBuffer();
+    var AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return;
+    var ac=new AC();
+    var buf=await ac.decodeAudioData(ab);
+    await ac.close();
+    dur=buf.duration;
+    var sr=buf.sampleRate,L=buf.getChannelData(0),R=buf.numberOfChannels>1?buf.getChannelData(1):L;
+    var totalF=Math.ceil(dur*ENV_HZ),hop=Math.max(1,Math.floor(sr/ENV_HZ));
+    var env=new Float32Array(totalF),bins=new Uint8Array(totalF*16);
+    var lp=0,alpha=Math.min(1,2*Math.PI*150/sr),maxE=1e-6;
+    for(var f=0;f<totalF;f++){
+      var s0=f*hop,s1=Math.min(L.length,s0+hop),cnt=Math.max(1,s1-s0);
+      var bassSq=0,midSq=0,hiSq=0,prev=0;
+      var step=cnt>256?2:1,used=0;
+      for(var i=s0;i<s1;i+=step){
+        var v=(L[i]+R[i])*0.5;
+        lp+=alpha*(v-lp);
+        var mid=v-lp;
+        var hi=mid-prev;prev=mid;
+        bassSq+=lp*lp;midSq+=mid*mid;hiSq+=hi*hi;
+        used++;
+      }
+      used=Math.max(1,used);
+      var bRms=Math.sqrt(bassSq/used),mRms=Math.sqrt(midSq/used),hRms=Math.sqrt(hiSq/used);
+      var e=bRms*1.45+mRms*0.45;
+      env[f]=e;if(e>maxE)maxE=e;
+      for(var b=0;b<16;b++){
+        var w=b<5?bRms*1.6:b<11?mRms*2.1:hRms*2.8;
+        var wave=0.72+0.28*Math.sin(f*0.35+b*0.9);
+        bins[f*16+b]=clamp(Math.round((w/(maxE||1))*wave*255),0,255);
+      }
+    }
+    /* Normalize + transient emphasis */
+    var smooth=0;
+    for(var k=0;k<totalF;k++){
+      var n=env[k]/maxE;
+      var onset=Math.max(0,n-smooth);
+      smooth=smooth*0.85+n*0.15;
+      env[k]=clamp(n*0.55+onset*2.1,0,1);
+    }
+    beatEnv=env;beatBins=bins;
+
+    /* Simple autocorrelation BPM estimation (65..175 BPM) */
+    var bestLag=0,bestScore=0;
+    var minLag=Math.round(ENV_HZ*60/175),maxLag=Math.round(ENV_HZ*60/65);
+    var scanLen=Math.min(totalF,ENV_HZ*45),off=Math.min(Math.floor(totalF*0.15),ENV_HZ*10);
+    for(var lag=minLag;lag<=maxLag;lag++){
+      var sc=0;
+      for(var t=off;t<off+scanLen-lag;t++)sc+=env[t]*env[t+lag];
+      if(sc>bestScore){bestScore=sc;bestLag=lag;}
+    }
+    if(bestLag>0){
+      var est=Math.round(ENV_HZ*60/bestLag);
+      if(est>=65&&est<=175){
+        $('bp').value=est;saveDraft();
+        $('si').textContent='✅ '+file.name+' ('+mmss(dur)+' · ~'+est+' BPM)';
+      }
+    }
+  }catch(e){}
+}
+
+$('fs').onchange=function(){
+  var f=this.files[0];if(!f)return;
+  if(audio){audio.pause();audio=null;}
+  if(audioUrl)URL.revokeObjectURL(audioUrl);
+  audioFile=f;beatEnv=null;beatBins=null;
+  audioUrl=URL.createObjectURL(f);
+  audio=new Audio(audioUrl);
+  audio.preload='auto';
+  $('si').textContent='⏳ កំពុងអានឯកសារចម្រៀង...';
+  audio.onloadedmetadata=function(){
+    dur=audio.duration||0;
+    $('si').textContent='✅ '+f.name+' ('+mmss(dur)+')';
+    analyzeAudioFile(f);
+  };
+  audio.onerror=function(){
+    $('si').textContent='❌ អានឯកសារសម្លេងមិនបាន សូមជ្រើស MP3/WAV/M4A ផ្សេង';
+  };
+};
+
+/* ===== Photo Compression, Pre-Blurred Ambient Canvas & Gallery ===== */
+function makeBlurCanvas(srcCanvas){
+  var c=document.createElement('canvas');c.width=96;c.height=96;
+  var x=c.getContext('2d');
+  x.imageSmoothingEnabled=true;
+  x.drawImage(srcCanvas,0,0,96,96);
+  /* Multi-pass down/up scale for silky cross-browser blur without runtime filter cost */
+  var t=document.createElement('canvas');t.width=24;t.height=24;
+  var tx=t.getContext('2d');tx.imageSmoothingEnabled=true;
+  for(var i=0;i<3;i++){
+    tx.drawImage(c,0,0,24,24);
+    x.drawImage(t,0,0,24,24,0,0,96,96);
+  }
+  return c;
+}
+async function shrinkPhoto(f){
+  var bm;
+  try{bm=await createImageBitmap(f,{imageOrientation:'from-image'});}
+  catch(e){try{bm=await createImageBitmap(f);}catch(e2){return null;}}
+  var k=Math.min(1,2560/Math.max(bm.width,bm.height));
+  var c=document.createElement('canvas');
+  c.width=Math.max(2,Math.round(bm.width*k));
+  c.height=Math.max(2,Math.round(bm.height*k));
+  c.getContext('2d').drawImage(bm,0,0,c.width,c.height);
+  if(bm.close)bm.close();
+  var blur=makeBlurCanvas(c);
+  var blob=await new Promise(function(r){c.toBlob(function(b){r(b);},'image/jpeg',0.88);});
+  if(!blob)return null;
+  var url=URL.createObjectURL(blob);
+  var img=await new Promise(function(r){
+    var im=new Image();im.onload=function(){r(im);};im.onerror=function(){r(null);};im.src=url;
+  });
+  if(!img){URL.revokeObjectURL(url);return null;}
+  return {url:url,img:img,blur:blur,size:blob.size,origSize:f.size};
+}
+function renderPhotoGrid(){
+  var g=$('pgrid');g.innerHTML='';
+  $('pclr').style.display=photos.length?'':'none';
+  if(!photos.length){
+    $('pi').textContent='មិនទាន់ជ្រើស · អាចតម្រៀបលំដាប់ ឬលុបរូបនីមួយៗបាន';
+    return;
+  }
+  var tot=photos.reduce(function(s,p){return s+p.size;},0);
+  $('pi').textContent='✅ សរុប '+photos.length+' សន្លឹក ('+MB(tot)+') · ចុចបន្ថែមរូបទៀតបាន';
+  photos.forEach(function(p,idx){
+    var d=document.createElement('div');d.className='pth';
+    var im=document.createElement('img');im.src=p.url;im.alt='';
+    var num=document.createElement('span');num.className='pnum';num.textContent=idx+1;
+    var bar=document.createElement('div');bar.className='pbar';
+    var bL=document.createElement('button');bL.type='button';bL.textContent='◀';bL.disabled=idx===0;
+    bL.onclick=function(){if(idx>0){var t=photos[idx-1];photos[idx-1]=photos[idx];photos[idx]=t;renderPhotoGrid();}};
+    var bR=document.createElement('button');bR.type='button';bR.textContent='▶';bR.disabled=idx===photos.length-1;
+    bR.onclick=function(){if(idx<photos.length-1){var t=photos[idx+1];photos[idx+1]=photos[idx];photos[idx]=t;renderPhotoGrid();}};
+    var bX=document.createElement('button');bX.type='button';bX.className='del';bX.textContent='✕';
+    bX.onclick=function(){URL.revokeObjectURL(photos[idx].url);photos.splice(idx,1);renderPhotoGrid();};
+    bar.appendChild(bL);bar.appendChild(bR);bar.appendChild(bX);
+    d.appendChild(im);d.appendChild(num);d.appendChild(bar);
+    g.appendChild(d);
+  });
+}
+$('fp').onchange=async function(){
+  var fs=[].slice.call(this.files),bad=0;
+  for(var i=0;i<fs.length;i++){
+    $('pi').textContent='⏳ កំពុងបង្រួមរូប '+(i+1)+'/'+fs.length+' ...';
+    var item=await shrinkPhoto(fs[i]);
+    if(!item){bad++;continue;}
+    photos.push(item);
+  }
+  this.value='';
+  renderPhotoGrid();
+  if(bad)$('pi').textContent+=' · ⚠ អានមិនបាន '+bad+' សន្លឹក (បើជា HEIC សូមប្ដូរជា JPG)';
+};
+$('pclr').onclick=function(){
+  photos.forEach(function(p){URL.revokeObjectURL(p.url);});
+  photos=[];renderPhotoGrid();
+};
+
+/* ===== Subtitle Parsers (.SRT / .VTT / .LRC / Plain & Timestamped Text) ===== */
+var RE_SRT=/(?:(\d+):)?(\d{1,2}):(\d{2})[,.](\d{1,3})\s*-->\s*(?:(\d+):)?(\d{1,2}):(\d{2})[,.](\d{1,3})/;
+function tsSec(h,m,s,ms){
+  return (+h||0)*3600+(+m)*60+(+s)+parseFloat('0.'+String(ms||'0'));
+}
+function parseSrtVtt(txt){
+  var out=[];
+  txt.replace(/^\uFEFF/,'').replace(/\r/g,'').split(/\n\s*\n/).forEach(function(b){
+    var ls=b.split('\n'),k=-1;
+    for(var i=0;i<ls.length;i++)if(ls[i].indexOf('-->')>-1){k=i;break;}
+    if(k<0)return;
+    var m=ls[k].match(RE_SRT);if(!m)return;
+    var s=ls.slice(k+1).join(' ').replace(/<[^>]+>|\{[^}]*\}/g,'').replace(/\s+/g,' ').trim();
+    if(s)out.push({t:tsSec(m[1],m[2],m[3],m[4]),e:tsSec(m[5],m[6],m[7],m[8]),s:s,x:1});
+  });
+  out.sort(function(a,b){return a.t-b.t;});
+  return out;
+}
+function parseTimedLines(txt,totalDur){
+  var offsetSec=0,ev=[],prev=3.5;
+  var offM=txt.match(/\[offset:\s*([+-]?\d+)\s*\]/i);
+  if(offM)offsetSec=(+offM[1])/1000;
+  var lines=txt.replace(/^\uFEFF/,'').replace(/\r/g,'').split('\n');
+  lines.forEach(function(rawLine){
+    var line=rawLine.trim();if(!line)return;
+    /* Ignore standard LRC metadata tags like [ti:...], [ar:...], [al:...] */
+    if(/^\[(?:ti|ar|al|au|by|length|offset|re|ve|tool)\s*:.*\]$/i.test(line))return;
+    var tagRe=/\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\]/g,m,times=[],lastIdx=0;
+    while((m=tagRe.exec(line))!==null){
+      if(m.index>lastIdx&&times.length===0)break;
+      var sec=(+m[1])*60+(+m[2])+(m[3]?parseFloat('0.'+m[3]):0)+offsetSec;
+      times.push(Math.max(0,sec));
+      lastIdx=tagRe.lastIndex;
+    }
+    if(times.length){
+      var body=line.slice(lastIdx).replace(/<\d{1,3}:\d{2}(?:[.:]\d{1,3})?>/g,'').trim();
+      var isBrk=!body||body==='--'||body==='---';
+      times.forEach(function(t){prev=t;ev.push({t:t,s:body,brk:isBrk});});
+      return;
+    }
+    var m2=line.match(/^(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?(?:\s+(.*))?$/);
+    if(m2){
+      var t2=Math.max(0,(+m2[1])*60+(+m2[2])+(m2[3]?parseFloat('0.'+m2[3]):0)+offsetSec);
+      var b2=(m2[4]||'').trim();
+      prev=t2;
+      ev.push({t:t2,s:b2,brk:!b2||b2==='--'||b2==='---'});
+      return;
+    }
+    prev+=4;
+    ev.push({t:prev,s:line,brk:line==='--'||line==='---'});
+  });
+  if(!ev.length)return [];
+  ev.sort(function(a,b){return a.t-b.t;});
+  var out=[];
+  for(var i=0;i<ev.length;i++){
+    if(ev[i].brk)continue;
+    var nextT=i+1<ev.length?ev[i+1].t:(totalDur||ev[i].t+8);
+    var hasExplicitBrk=i+1<ev.length&&ev[i+1].brk;
+    var maxSpan=Math.max(10,ev[i].s.length*0.28+5);
+    out.push({
+      t:ev[i].t,
+      e:hasExplicitBrk?nextT:Math.min(nextT,ev[i].t+maxSpan),
+      s:ev[i].s,
+      x:1
+    });
+  }
+  return out;
+}
+function parseAnySubFile(txt){
+  if(txt.indexOf('-->')>-1)return parseSrtVtt(txt);
+  if(/\[\d{1,3}:\d{2}/.test(txt)||/^\s*\d{1,3}:\d{2}/m.test(txt))return parseTimedLines(txt,0);
+  return [];
+}
+function parseLyricsBox(txt,totalDur){
+  if(!txt||!txt.trim())return [];
+  if(txt.indexOf('-->')>-1){var sv=parseSrtVtt(txt);if(sv.length)return sv;}
+  var cleaned=txt.replace(/^\uFEFF/,'').replace(/\r/g,'').split('\n')
+    .map(function(s){return s.trim();})
+    .filter(function(s){return s&&!/^\[(?:ti|ar|al|au|by|length|offset|re|ve|tool)\s*:.*\]$/i.test(s);});
+  if(!cleaned.length)return [];
+  var anyTs=cleaned.some(function(s){return /^\[?\d{1,3}:\d{2}(?:[.:]\d{1,3})?(?:\]|\s|$)/.test(s);});
+  if(!anyTs){
+    var raw=cleaned.filter(function(s){return s!=='--'&&s!=='---';});
+    if(!raw.length)return [];
+    var n=raw.length,a=Math.min(4.5,totalDur*0.05),span=Math.max(1,totalDur-a-Math.min(6,totalDur*0.06));
+    return raw.map(function(s,i){
+      var t0=a+span*i/n,t1=a+span*(i+1)/n;
+      return {t:t0,e:t1,s:s,x:0};
+    });
+  }
+  return parseTimedLines(txt,totalDur);
+}
+function getActiveLines(totalDur){
+  return srt?srt.slice():parseLyricsBox($('ly0').value,totalDur);
+}
+
+$('fr').onchange=function(){
+  var f=this.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){
+    var o=parseAnySubFile(String(r.result));
+    if(!o.length){
+      srt=null;srtName='';
+      $('ri').textContent='❌ អានមិនបាន សូមពិនិត្យថាជាឯកសារ .SRT, .VTT ឬ .LRC (UTF-8)';
+      $('srtBar').style.display='none';
+      return;
+    }
+    srt=o;srtName=f.name;
+    $('ri').textContent='✅ '+f.name+' ('+o.length+' ឃ្លា · ដល់ '+mmss(o[o.length-1].e)+')';
+    $('srtBar').style.display='flex';
+  };
+  r.readAsText(f,'UTF-8');
+  this.value='';
+};
+$('rx').onclick=function(){
+  srt=null;srtName='';$('fr').value='';
+  $('ri').textContent='មិនទាន់ជ្រើស · បើជ្រើស នឹងប្រើជំនួសប្រអប់ខាងក្រោម';
+  $('srtBar').style.display='none';
+};
+$('r2t').onclick=function(){
+  if(!srt||!srt.length)return;
+  var out=[];
+  for(var i=0;i<srt.length;i++){
+    out.push(fmtT(srt[i].t)+' '+srt[i].s);
+    if(i+1<srt.length&&srt[i+1].t-srt[i].e>1.2)out.push(fmtT(srt[i].e)+' --');
+  }
+  $('ly0').value=out.join('\n');
+  saveDraft();
+  $('rx').click();
+};
+
+/* Export .LRC / .SRT from current lyrics */
+function exportSubFile(kind){
+  var d=dur||Math.max(40,$('ly0').value.split('\n').length*5+15);
+  var ls=getActiveLines(d);
+  if(!ls.length){alert('មិនទាន់មានពាក្យចម្រៀងសម្រាប់ទាញយកទេ');return;}
+  var txt='',ext=kind;
+  if(kind==='lrc'){
+    var head=['[ti:'+($('ti').value||'Song')+']'];
+    if($('su').value)head.push('[ar:'+$('su').value+']');
+    ls.forEach(function(l,i){
+      head.push(fmtLrcT(l.t)+l.s);
+      if(i+1<ls.length&&ls[i+1].t-l.e>1.0)head.push(fmtLrcT(l.e));
+    });
+    txt=head.join('\n')+'\n';
+  }else{
+    txt=ls.map(function(l,i){
+      return (i+1)+'\n'+fmtSrtT(l.t)+' --> '+fmtSrtT(Math.max(l.t+0.5,l.e))+'\n'+l.s;
+    }).join('\n\n')+'\n';
+  }
+  var blob=new Blob(['\uFEFF'+txt],{type:'text/plain;charset=utf-8'});
+  var u=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=u;a.download=(($('ti').value||'lyrics').replace(/[^\w\u1780-\u17FF]+/g,'-'))+'.'+ext;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(u);},10000);
+}
+$('dlLrc').onclick=function(){exportSubFile('lrc');};
+$('dlSrt').onclick=function(){exportSubFile('srt');};
+
+/* ===== Tap-to-Sync ===== */
+var sy={on:false,L:[],ev:[],i:0},syTm=null;
+function syRender(){
+  var L=sy.L;
+  $('sp').textContent=sy.i>0?L[sy.i-1]:'';
+  $('sc').textContent=sy.i<L.length?L[sy.i]:'✓ ចប់គ្រប់ឃ្លាហើយ!';
+  $('sn').textContent=sy.i+1<L.length?L[sy.i+1]:'';
+  $('st').textContent='ឃ្លាទី '+Math.min(sy.i,L.length)+' / '+L.length+(audio?' · ម៉ោង '+fmtT(audio.currentTime):'');
+}
+function syClose(){
+  sy.on=false;clearInterval(syTm);
+  if(audio){audio.pause();audio.onended=null;}
+  $('sync').classList.remove('on');
+}
+function sySave(){
+  var out=[];
+  sy.ev.forEach(function(item){
+    out.push(fmtT(item.t)+' '+(item.brk?'--':item.s));
+  });
+  for(var k=sy.i;k<sy.L.length;k++)out.push(sy.L[k]);
+  $('ly0').value=out.join('\n');
+  saveDraft();
+  if(srt)$('rx').click();
+  syClose();
+}
+function syTap(){
+  if(!sy.on||sy.i>=sy.L.length)return;
+  var t=Math.max(0,(audio?audio.currentTime:0)-0.12);
+  sy.ev.push({t:t,s:sy.L[sy.i],brk:false});
+  sy.i++;syRender();
+  if(sy.i>=sy.L.length)setTimeout(sySave,450);
+}
+function syBreak(){
+  if(!sy.on||!sy.ev.length)return;
+  if(sy.ev[sy.ev.length-1].brk)return;
+  var t=Math.max(0,audio?audio.currentTime:0);
+  sy.ev.push({t:t,s:'--',brk:true});
+  $('st').textContent='⏸ បានដាក់សញ្ញាភ្លេងសុទ្ធត្រង់ '+fmtT(t);
+}
+$('sy').onclick=function(){
+  if(!audio||!dur){alert('សូមជ្រើសឯកសារចម្រៀងជាមុនសិន');return;}
+  var L=$('ly0').value.split('\n').map(function(s){
+    return s.replace(/^\s*\[?\d+:\d{2}(?:[.:]\d+)?\]?\s*/,'').trim();
+  }).filter(function(s){return s&&s!=='--'&&s!=='---';});
+  if(!L.length){alert('សូមវាយពាក្យចម្រៀងក្នុងប្រអប់ជាមុនសិន (មួយបន្ទាត់មួយឃ្លា)');return;}
+  sy={on:true,L:L,ev:[],i:0};
+  audio.loop=false;audio.onended=sySave;audio.currentTime=0;
+  var p=audio.play();if(p&&p.catch)p.catch(function(){});
+  $('sync').classList.add('on');
+  syRender();clearInterval(syTm);syTm=setInterval(syRender,150);
+};
+$('tp').onpointerdown=function(e){e.preventDefault();syTap();};
+$('sbrk').onclick=syBreak;
+$('sback').onclick=function(){if(audio)audio.currentTime=Math.max(0,audio.currentTime-5);syRender();};
+$('sfwd').onclick=function(){if(audio)audio.currentTime=Math.min(dur,audio.currentTime+5);syRender();};
+$('sundo').onclick=function(){
+  if(!sy.ev.length)return;
+  var last=sy.ev.pop();
+  if(!last.brk&&sy.i>0)sy.i--;
+  if(audio)audio.currentTime=Math.max(0,last.t-2.5);
+  syRender();
+};
+$('sdone').onclick=sySave;
+$('scancel').onclick=syClose;
+
+/* ===== Khmer-Aware Word Segmentation & Cached Multi-line Layout ===== */
+var segKm=(typeof Intl!=='undefined'&&Intl.Segmenter)?new Intl.Segmenter('km',{granularity:'word'}):null;
+function splitTokens(str){
+  if(segKm){
+    var out=[],it=segKm.segment(str)[Symbol.iterator](),st;
+    while(!(st=it.next()).done)out.push(st.value.segment);
+    return out;
+  }
+  return str.match(/\s+|[\u1780-\u17FF](?:\u17D2[\u1780-\u17FF]|[\u17B6-\u17D1\u17D3\u17DD])*|[^\s\u1780-\u17FF]+/g)||[str];
+}
+var layoutCache=new Map();
+function clearLayoutCache(){layoutCache.clear();}
+if(document.fonts&&document.fonts.addEventListener)document.fonts.addEventListener('loadingdone',clearLayoutCache);
+function layoutWrapped(g,text,maxW,baseFs,minFs,maxLines,fontSpec){
+  var key=text+'|'+maxW+'|'+baseFs+'|'+maxLines+'|'+fontSpec;
+  var hit=layoutCache.get(key);if(hit)return hit;
+  var tokens=splitTokens(text),fs=baseFs,lines=[],ok=false;
+  while(fs>=minFs){
+    g.font=fontSpec.replace('{S}',fs.toFixed(1));
+    lines=[];var cur='';
+    for(var i=0;i<tokens.length;i++){
+      var tk=tokens[i];
+      if(!cur&&/^\s+$/.test(tk))continue;
+      var cand=cur+tk;
+      if(cur&&g.measureText(cand.trim()).width>maxW){
+        lines.push(cur.trim());
+        cur=/^\s+$/.test(tk)?'':tk;
+      }else cur=cand;
+    }
+    if(cur.trim())lines.push(cur.trim());
+    var widest=0;
+    for(var j=0;j<lines.length;j++){var w=g.measureText(lines[j]).width;if(w>widest)widest=w;}
+    if(lines.length<=maxLines&&widest<=maxW*1.02){ok=true;break;}
+    fs*=0.87;
+  }
+  if(!ok){
+    fs=minFs;g.font=fontSpec.replace('{S}',fs.toFixed(1));
+    var w0=0;lines.forEach(function(l){var w=g.measureText(l).width;if(w>w0)w0=w;});
+    if(w0>maxW){fs=Math.max(18,fs*maxW/w0);g.font=fontSpec.replace('{S}',fs.toFixed(1));}
+  }
+  var totalW=0;
+  var items=lines.map(function(l){var w=g.measureText(l).width;totalW+=w;return {text:l,w:w};});
+  var res={fs:fs,font:fontSpec.replace('{S}',fs.toFixed(1)),lines:items,totalW:totalW};
+  if(layoutCache.size>200)layoutCache.clear();layoutCache.set(key,res);
+  return res;
+}
+
+/* ===== Unified Scene Engine (100% Identical in Preview & MP4 Export) ===== */
+function getLogicalDims(aspect){
+  if(aspect==='9:16')return {W:1080,H:1920};
+  if(aspect==='1:1')return {W:1440,H:1440};
+  return {W:1920,H:1080};
+}
+function roundRectPath(g,x,y,w,h,r){
+  r=Math.min(r,w/2,h/2);
+  g.beginPath();
+  g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);
+  g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();
+}
+
+function createScene(opts){
+  var dims=getLogicalDims(opts.aspect);
+  var W=dims.W,H=dims.H;
+  var stars=[];
+  for(var i=0;i<130;i++){
+    /* Deterministic pseudo-random stars so preview & export match nicely */
+    var s1=Math.sin(i*12.9898+1)*43758.5453,s2=Math.sin(i*78.233+2)*43758.5453,s3=Math.sin(i*39.425+3)*43758.5453;
+    stars.push({
+      x:(s1-Math.floor(s1))*W,
+      y:(s2-Math.floor(s2))*H,
+      r:((s3-Math.floor(s3))*1.8+0.4),
+      p:(i*1.37)%6.283
+    });
+  }
+  var sparks=[],rockets=[],conf=[],rain=[];
+  var lastRain=-1,lastBeat=-1,pk=-1,li=-1,ended=false,prevT=0;
+
+  var lines=opts.lines||[];
+  var songDur=opts.dur;
+  var introEnd=lines.length?Math.min(3.5,Math.max(0.6,lines[0].t-0.4)):3.5;
+
+  function burst(x,y,n,CL){
+    for(var i=0;i<n;i++){
+      var a=Math.random()*6.2832,sp=Math.random()*5.8+1.6;
+      sparks.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,l:1,d:0.011+Math.random()*0.01,c:CL[i%CL.length]});
+    }
+  }
+  function spawnRocket(CL){
+    rockets.push({x:W*(0.14+Math.random()*0.72),y:H,vy:-(H*0.0082+Math.random()*H*0.0038),ty:H*(0.12+Math.random()*0.28),CL:CL});
+  }
+  function spawnConfetti(n,CL){
+    for(var i=0;i<n;i++){
+      conf.push({
+        x:Math.random()*W,y:-20-Math.random()*H*0.45,
+        vx:Math.random()*2.2-1.1,vy:Math.random()*3.2+2.1,
+        r:Math.random()*6.28,vr:Math.random()*0.28-0.14,
+        c:CL[i%CL.length],w:7+Math.random()*7
+      });
+    }
+  }
+  function resetTransient(){
+    sparks=[];rockets=[];conf=[];rain=[];
+    lastRain=-1;lastBeat=-1;pk=-1;li=-1;ended=false;
+  }
+
+  function stepPhysics(k60,CL){
+    rockets=rockets.filter(function(r){
+      r.y+=r.vy*k60;r.vy*=Math.pow(0.985,k60);
+      if(r.y<=r.ty||r.vy>-1.5){burst(r.x,r.y,85,r.CL||CL);return false;}
+      return true;
+    });
+    sparks=sparks.filter(function(p){
+      p.x+=p.vx*k60;p.y+=p.vy*k60;p.vy+=0.065*k60;
+      p.vx*=Math.pow(0.985,k60);p.l-=p.d*k60;
+      return p.l>0;
+    });
+    conf=conf.filter(function(c){
+      c.x+=c.vx*k60;c.y+=c.vy*k60;c.r+=c.vr*k60;
+      return c.y<H+30;
+    });
+    rain=rain.filter(function(r){
+      r.y+=r.vy*k60;r.a+=r.va*k60;
+      return r.y<H+70;
+    });
+  }
+
+  function step(t,dt){
+    var T=TH[opts.getTheme()],CL=T.c,fx=opts.getFxMode(),bpm=opts.getBpm();
+    if(Math.abs(t-prevT)>0.75){
+      resetTransient();
+      lastRain=t;
+    }
+    prevT=t;
+    var k60=clamp(dt,0,0.05)*60;
+    /* Substep once for accuracy at 30fps */
+    stepPhysics(k60*0.5,CL);stepPhysics(k60*0.5,CL);
+
+    /* Intro celebration rockets */
+    if(fx==='full'&&t<0.9&&lastBeat===-1&&rockets.length===0){
+      spawnRocket(CL);spawnRocket(CL);
+    }
+
+    var bi=Math.floor(t*bpm/60);
+    if(bi!==lastBeat){
+      lastBeat=bi;
+      if(fx==='full'&&t>introEnd&&t<songDur&&bi%4===0)spawnRocket(CL);
+    }
+
+    /* Active lyric line lookup */
+    var ci=-1;
+    for(var j=0;j<lines.length;j++)if(lines[j].t<=t)ci=j;
+    if(ci>=0&&lines[ci].x&&t>lines[ci].e)ci=-2;
+    if(t<introEnd*0.85||t>=songDur)ci=-1;
+
+    if(ci!==li){
+      li=ci;
+      if(ci>=0&&fx!=='clean')burst(W*0.5,H*0.76,fx==='full'?32:16,CL);
+    }
+
+    /* Emoji rain */
+    if(fx==='full'&&t>introEnd&&t<songDur&&li>=0&&t-lastRain>0.38){
+      lastRain=t;
+      var em=T.em;
+      rain.push({
+        x:Math.random()*W,y:-45,vy:2.3+Math.random()*2.1,
+        a:0,va:(Math.random()-0.5)*0.08,
+        e:em[Math.floor(Math.random()*em.length)],
+        z:Math.round((28+Math.random()*26)*(Math.min(W,H)/1080))
+      });
+    }
+
+    /* Outro celebration */
+    if(!ended&&t>=songDur){
+      ended=true;
+      if(fx!=='clean'){
+        spawnConfetti(fx==='full'?240:90,CL);
+        burst(W*0.5,H*0.42,fx==='full'?180:70,CL);
+        if(fx==='full')for(var r=0;r<6;r++)spawnRocket(CL);
+      }
+    }
+  }
+
+  function getBeatPulse(t){
+    var bm=opts.getBeatMode();
+    if(bm==='off'||t>=songDur)return 0;
+    var bt=t*opts.getBpm()/60,bpmP=Math.pow(1-(bt%1),3);
+    if(bm==='auto'&&beatEnv&&beatEnv.length){
+      var idx=clamp(Math.floor(t*ENV_HZ),0,beatEnv.length-1);
+      return clamp(beatEnv[idx]*0.82+bpmP*0.22,0,1);
+    }
+    return bpmP;
+  }
+
+  function drawPhotoItem(g,pItem,idx,alpha,age,pStyle,CL,sc,hasLyrics){
+    var im=pItem.img;
+    var z=0.98+0.08*Math.min(1,age/13);
+    var panX=Math.sin(idx*7.13)*22*Math.min(1,age/12);
+    var panY=Math.cos(idx*5.71)*14*Math.min(1,age/12);
+
+    g.save();
+    g.globalAlpha=alpha;
+
+    if(pStyle==='cinema'){
+      /* Fullscreen cover-fit Ken Burns */
+      var kCov=Math.max(W/im.width,H/im.height)*z;
+      var cw=im.width*kCov,ch=im.height*kCov;
+      g.drawImage(im,(W-cw)/2+panX,(H-ch)/2+panY,cw,ch);
+      /* Cinematic dark vignette so text always pops */
+      var vg=g.createLinearGradient(0,0,0,H);
+      vg.addColorStop(0,'rgba(5,1,15,0.55)');
+      vg.addColorStop(0.45,'rgba(5,1,15,0.12)');
+      vg.addColorStop(0.75,'rgba(5,1,15,0.48)');
+      vg.addColorStop(1,'rgba(5,1,15,0.86)');
+      g.fillStyle=vg;g.fillRect(0,0,W,H);
+      g.restore();
+      return;
+    }
+
+    /* Ambient blurred photo background for Modern style */
+    if(pStyle==='modern'&&pItem.blur){
+      g.save();
+      g.globalAlpha=alpha*0.42;
+      g.drawImage(pItem.blur,0,0,W,H);
+      g.fillStyle='rgba(7,2,24,0.45)';
+      g.fillRect(0,0,W,H);
+      g.restore();
+    }
+
+    var boxW=opts.aspect==='9:16'?W*0.82:opts.aspect==='1:1'?W*0.72:W*0.50;
+    var boxH=hasLyrics?(opts.aspect==='9:16'?H*0.46:opts.aspect==='1:1'?H*0.50:H*0.52):H*0.64;
+    var cy=hasLyrics?(opts.aspect==='9:16'?H*0.41:opts.aspect==='1:1'?H*0.43:H*0.43):H*0.48;
+    var k=Math.min(boxW/im.width,boxH/im.height);
+    var iw=im.width*k,ih=im.height*k;
+
+    g.translate(W*0.5,cy);
+    if(pStyle==='polaroid'){
+      g.rotate(Math.sin(idx*12.9898)*0.055);
+      g.scale(z,z);
+      var pad=Math.max(12,Math.min(W,H)*0.013),chin=pad*3.2;
+      g.shadowColor=CL[0];g.shadowBlur=48*sc;
+      roundRectPath(g,-iw/2-pad,-ih/2-pad,iw+pad*2,ih+pad+chin,10);
+      g.fillStyle='#fff7ee';g.fill();
+      g.shadowBlur=0;
+      g.drawImage(im,-iw/2,-ih/2,iw,ih);
+    }else{
+      /* Modern sleek rounded card with glowing neon frame */
+      g.scale(z,z);
+      var r=26;
+      g.shadowColor=CL[0];g.shadowBlur=52*sc;
+      roundRectPath(g,-iw/2-4,-ih/2-4,iw+8,ih+8,r+3);
+      var bd=g.createLinearGradient(-iw/2,-ih/2,iw/2,ih/2);
+      bd.addColorStop(0,CL[0]);bd.addColorStop(0.5,CL[1]);bd.addColorStop(1,CL[2]);
+      g.fillStyle=bd;g.fill();
+      g.shadowBlur=0;
+      g.save();
+      roundRectPath(g,-iw/2,-ih/2,iw,ih,r);
+      g.clip();
+      g.drawImage(im,-iw/2+panX*0.35,-ih/2+panY*0.35,iw,ih);
+      g.restore();
+    }
+    g.restore();
+  }
+
+  function drawSoundWave(g,t,pulse,CL){
+    if(opts.getBeatMode()!=='auto'||t<=introEnd||t>=songDur)return;
+    var bars=28,span=Math.min(W*0.62,760),bw=span/(bars*1.65),x0=W*0.5-span*0.5,baseY=H-14;
+    var fIdx=beatBins?clamp(Math.floor(t*ENV_HZ),0,(beatBins.length/16)-1):-1;
+    g.save();
+    g.globalAlpha=0.58;
+    for(var i=0;i<bars;i++){
+      var sym=Math.abs(i-(bars-1)/2)/((bars-1)/2);
+      var bIdx=Math.min(15,Math.floor(sym*15));
+      var v=fIdx>=0?(beatBins[fIdx*16+bIdx]/255):(0.25+0.55*pulse*Math.abs(Math.sin(t*7+i*0.6)));
+      var bh=Math.max(4,v*(Math.min(W,H)*0.048));
+      var x=x0+i*(span/bars);
+      g.fillStyle=CL[i%3];
+      roundRectPath(g,x,baseY-bh,bw,bh,bw*0.5);
+      g.fill();
+    }
+    g.restore();
+  }
+
+  function drawCover(g,alpha,scaleK,t,CL,sc){
+    g.save();
+    g.globalAlpha=clamp(alpha,0,1);
+    var cg=g.createRadialGradient(W*0.5,H*0.44,0,W*0.5,H*0.44,Math.max(W,H)*0.75);
+    cg.addColorStop(0,'rgba(7,2,24,0.42)');
+    cg.addColorStop(1,'rgba(4,1,14,0.84)');
+    g.fillStyle=cg;g.fillRect(0,0,W,H);
+
+    g.translate(W*0.5,H*0.45);
+    g.scale(scaleK,scaleK);
+    g.textAlign='center';g.textBaseline='middle';
+
+    var title=opts.getTitle()||'';
+    var baseTitleFs=Math.round(Math.min(W,H)*0.115);
+    var lay=layoutWrapped(g,title,W*0.84,baseTitleFs,34,2,'400 {S}px "Pacifico","Moul","Kantumruy Pro",cursive,serif');
+    g.font=lay.font;
+    var lh=lay.fs*1.42,yStart=-((lay.lines.length-1)*lh)/2;
+
+    /* Smooth continuous animated gradient across cover title */
+    var shift=Math.sin(t*1.6)*W*0.35;
+    var lg=g.createLinearGradient(-W*0.6+shift,0,W*0.6+shift,0);
+    lg.addColorStop(0,CL[0]);lg.addColorStop(0.35,CL[1]);lg.addColorStop(0.7,CL[2]);lg.addColorStop(1,CL[0]);
+    g.shadowColor=CL[0];g.shadowBlur=42*sc;
+    g.fillStyle=lg;
+    lay.lines.forEach(function(ln,idx){
+      g.fillText(ln.text,0,yStart+idx*lh);
+    });
+
+    var sub=opts.getSub()||'';
+    if(sub){
+      g.shadowColor=CL[0];g.shadowBlur=18*sc;
+      var subFs=Math.round(Math.min(W,H)*0.036);
+      var subLay=layoutWrapped(g,sub,W*0.82,subFs,20,2,'400 {S}px "Moul","Kantumruy Pro","Noto Sans Khmer",serif');
+      g.font=subLay.font;g.fillStyle=CL[1];
+      var subY=yStart+(lay.lines.length-1)*lh+lay.fs*0.95;
+      subLay.lines.forEach(function(ln,idx){
+        g.fillText(ln.text,0,subY+idx*(subLay.fs*1.5));
+      });
+    }
+    g.restore();
+  }
+
+  function draw(g,physW,physH,t){
+    var sc=physW/W;
+    var T=TH[opts.getTheme()],CL=T.c,pStyle=opts.getPhotoStyle();
+    var pulse=getBeatPulse(t);
+    var N=opts.photos.length;
+    var hasLyrics=lines.length>0;
+
+    g.setTransform(sc,0,0,sc,0,0);
+    g.globalAlpha=1;g.globalCompositeOperation='source-over';
+
+    /* 1. Radial Theme Background */
+    var rg=g.createRadialGradient(W*0.5,H*0.36,0,W*0.5,H*0.36,Math.max(W,H)*0.85);
+    rg.addColorStop(0,T.bg[0]);rg.addColorStop(0.68,T.bg[1]);rg.addColorStop(1,'#04010d');
+    g.fillStyle=rg;g.fillRect(0,0,W,H);
+
+    /* 2. Rotating Spotlight Beam (matches preview & MP4!) */
+    if(opts.getFxMode()!=='clean'){
+      g.save();
+      g.translate(W*0.5,H*0.42);
+      g.rotate(t*0.52);
+      var R=Math.max(W,H)*1.4;
+      for(var b=0;b<2;b++){
+        g.rotate(Math.PI);
+        var bgBeam=g.createLinearGradient(0,0,0,-R);
+        bgBeam.addColorStop(0,'rgba(255,255,255,0.11)');
+        bgBeam.addColorStop(1,'rgba(255,255,255,0)');
+        g.beginPath();g.moveTo(0,0);g.lineTo(-R*0.22,-R);g.lineTo(R*0.22,-R);g.closePath();
+        g.fillStyle=bgBeam;g.fill();
+      }
+      g.restore();
+    }
+
+    /* 3. Twinkling Stars */
+    g.fillStyle='#fff';
+    for(var si=0;si<stars.length;si++){
+      var s=stars[si];
+      g.globalAlpha=0.3+0.7*Math.abs(Math.sin(t*1.6+s.p));
+      g.fillRect(s.x,s.y,s.r,s.r);
+    }
+    g.globalAlpha=1;
+
+    /* 4. Photos + Beat Pulse Stage Scale */
+    g.save();
+    if(pulse>0.001){
+      var zBeat=1+pulse*0.022;
+      g.translate(W*0.5,H*0.5);g.scale(zBeat,zBeat);g.translate(-W*0.5,-H*0.5);
+    }
+    if(N&&t>introEnd*0.75&&t<songDur){
+      var iv=Math.min(12,Math.max(4,songDur/N));
+      var u=Math.max(0,t-introEnd*0.75),mi=Math.floor(u/iv),age=u-mi*iv;
+      if(mi!==pk){
+        pk=mi;
+        if(opts.getFxMode()==='full'&&mi>0)burst(W*(0.22+Math.random()*0.56),H*0.24,45,CL);
+      }
+      if(mi>0&&age<1.2){
+        var prevAlpha=pStyle==='cinema'?1:(1-age/1.2);
+        drawPhotoItem(g,opts.photos[(mi-1)%N],mi-1,prevAlpha,iv+age,pStyle,CL,sc,hasLyrics);
+      }
+      drawPhotoItem(g,opts.photos[mi%N],mi,Math.min(1,age/(pStyle==='cinema'?1.2:1.0)),age,pStyle,CL,sc,hasLyrics);
+    }
+    g.restore();
+
+    /* 5. Top Song Header (consistent in both Preview & MP4!) */
+    if(opts.getTopOn()&&t>introEnd&&t<songDur){
+      var topTitle=opts.getTitle()||'';
+      if(topTitle){
+        g.save();
+        var topFs=Math.round(Math.min(W,H)*0.044);
+        var tLay=layoutWrapped(g,topTitle,W*0.86,topFs,22,1,'400 {S}px "Pacifico","Moul","Kantumruy Pro",cursive,serif');
+        g.font=tLay.font;g.textAlign='center';g.textBaseline='middle';
+        g.shadowColor=CL[0];g.shadowBlur=18*sc;
+        g.fillStyle=CL[1];
+        g.globalAlpha=Math.min(1,(t-introEnd)/0.6)*0.92;
+        g.fillText(tLay.lines[0].text,W*0.5,H*0.065);
+        g.restore();
+      }
+    }
+
+    /* 6. Multi-Line Khmer Karaoke Subtitles (Sequential fill + Zero Glow Clipping!) */
+    if(li>=0&&li<lines.length){
+      var L=lines[li];
+      var enterA=clamp((t-L.t)/0.32,0,1);
+      var exitA=L.x?clamp((L.e-t)/0.22,0,1):1;
+      var aL=Math.min(enterA,exitA);
+      if(aL>0.01){
+        var baseFs=N?Math.round(Math.min(W,H)*0.056):Math.round(Math.min(W,H)*0.078);
+        var maxLns=opts.aspect==='9:16'?3:2;
+        var lyY=N?(opts.aspect==='9:16'?H*0.80:H*0.845):H*0.51;
+        var lLay=layoutWrapped(g,L.s,W*0.88,baseFs,26,maxLns,'700 {S}px "Kantumruy Pro","Noto Sans Khmer",sans-serif');
+        var lh2=lLay.fs*1.58;
+        var y0=lyY-((lLay.lines.length-1)*lh2)/2;
+        var prog=clamp((t-L.t)/Math.max(0.45,L.e-L.t-0.25),0,1);
+        var remW=prog*lLay.totalW;
+
+        g.save();
+        g.globalAlpha=aL;
+        g.translate(0,(1-enterA)*24);
+
+        /* Soft translucent pill behind subtitles when photos are visible for 100% contrast */
+        if(N){
+          var maxLineW=0;
+          lLay.lines.forEach(function(ln){if(ln.w>maxLineW)maxLineW=ln.w;});
+          var pW=maxLineW+lLay.fs*1.3,pH=lLay.lines.length*lh2+lLay.fs*0.55;
+          g.fillStyle='rgba(5,1,15,0.44)';
+          roundRectPath(g,W*0.5-pW*0.5,lyY-pH*0.5,pW,pH,22);
+          g.fill();
+        }
+
+        g.font=lLay.font;
+        g.textAlign='left';g.textBaseline='middle';
+        g.lineJoin='round';g.lineWidth=Math.max(3,lLay.fs*0.11);
+
+        for(var q=0;q<lLay.lines.length;q++){
+          var ln=lLay.lines[q],lx=W*0.5-ln.w*0.5,lyLine=y0+q*lh2;
+          var lp=ln.w>0?clamp(remW/ln.w,0,1):1;
+          remW-=ln.w;
+
+          /* Crisp dark outline + un-sung base text */
+          g.strokeStyle='rgba(7,2,24,0.82)';
+          g.strokeText(ln.text,lx,lyLine);
+          g.fillStyle='rgba(255,255,255,0.56)';
+          g.fillText(ln.text,lx,lyLine);
+
+          /* Progressive Karaoke Fill with generous vowel/subscript & glow padding */
+          if(lp>0.002){
+            g.save();
+            var padL=lLay.fs*0.9,padR=lp>=0.998?lLay.fs*0.9:0,padY=lLay.fs*1.2;
+            g.beginPath();
+            g.rect(lx-padL,lyLine-padY,padL+ln.w*lp+padR,padY*2);
+            g.clip();
+            g.shadowColor=CL[0];g.shadowBlur=24*sc;
+            g.fillStyle=CL[1];
+            g.fillText(ln.text,lx,lyLine);
+            g.restore();
+          }
+        }
+        g.restore();
+      }
+    }
+
+    /* 7. Audio-Reactive Equalizer Bars */
+    drawSoundWave(g,t,pulse,CL);
+
+    /* 8. Emoji Rain, Fireworks, Sparks & Confetti */
+    for(var ri=0;ri<rain.length;ri++){
+      var rn=rain[ri];
+      g.save();g.translate(rn.x,rn.y);g.rotate(rn.a);
+      g.font=rn.z+'px serif';g.textAlign='center';g.textBaseline='middle';
+      g.fillText(rn.e,0,0);g.restore();
+    }
+    g.globalCompositeOperation='lighter';
+    g.fillStyle='#fff';
+    for(var rki=0;rki<rockets.length;rki++){
+      var rk=rockets[rki];g.fillRect(rk.x-1.5,rk.y,3,11);
+    }
+    for(var spi=0;spi<sparks.length;spi++){
+      var sp=sparks[spi];
+      g.globalAlpha=sp.l;g.fillStyle=sp.c;
+      g.beginPath();g.arc(sp.x,sp.y,2.5*sp.l+0.5,0,6.2832);g.fill();
+    }
+    g.globalAlpha=1;g.globalCompositeOperation='source-over';
+    for(var cfi=0;cfi<conf.length;cfi++){
+      var cf=conf[cfi];
+      g.save();g.translate(cf.x,cf.y);g.rotate(cf.r);
+      g.fillStyle=cf.c;g.fillRect(-cf.w*0.5,-2.5,cf.w,5);g.restore();
+    }
+
+    /* 9. Bottom Song Progress Line */
+    var barG=g.createLinearGradient(0,0,W,0);
+    barG.addColorStop(0,CL[0]);barG.addColorStop(0.5,CL[1]);barG.addColorStop(1,CL[2]);
+    g.fillStyle=barG;
+    g.fillRect(0,H-6,W*clamp(t/Math.max(0.1,songDur),0,1),6);
+
+    /* 10. Intro & Outro Cover Overlay */
+    if(t<introEnd+0.7){
+      var cAlpha=t<introEnd-0.1?1:1-(t-(introEnd-0.1))/0.8;
+      var cScale=0.72+0.28*Math.min(1,t/0.75);
+      drawCover(g,cAlpha,cScale,t,CL,sc);
+    }else if(t>=songDur){
+      drawCover(g,Math.min(1,(t-songDur)/0.8),1,t,CL,sc);
+    }
+  }
+
+  return {W:W,H:H,step:step,draw:draw,reset:resetTransient};
+}
+
+/* ===== Live Preview Player (Zero Idle CPU, Delta-Time, Seekable, Pause/Play) ===== */
+var stCv=$('stage'),stCtx=stCv.getContext('2d');
+var player={
+  open:false,paused:false,raf:0,scene:null,
+  songDur:30,totalDur:35,
+  vTime:0,lastNow:0,inOutro:false,onEndRec:null,
+  getTime:function(){
+    if(audio&&!this.inOutro&&this.vTime<this.songDur)return audio.currentTime;
+    return this.vTime;
+  },
+  drawOnce:function(){
+    if(!this.scene)return;
+    this.scene.draw(stCtx,stCv.width,stCv.height,this.getTime());
+  }
+};
+
+function resizeStage(){
+  if(!player.open)return;
+  var dims=getLogicalDims(state.aspect);
+  var vw=window.innerWidth,vh=window.innerHeight;
+  var scale=Math.min(vw/dims.W,vh/dims.H);
+  var cssW=Math.round(dims.W*scale),cssH=Math.round(dims.H*scale);
+  var dpr=Math.min(window.devicePixelRatio||1,2);
+  stCv.style.width=cssW+'px';stCv.style.height=cssH+'px';
+  stCv.width=Math.round(cssW*dpr);stCv.height=Math.round(cssH*dpr);
+  if(player.paused)player.drawOnce();
+}
+window.addEventListener('resize',resizeStage);
+
+function computePreviewDur(){
+  if(audio&&dur>0)return dur;
+  if(srt&&srt.length)return Math.max(20,srt[srt.length-1].e+6);
+  var lnCount=$('ly0').value.split('\n').filter(function(s){return s.trim();}).length;
+  var parsed=parseLyricsBox($('ly0').value,Math.max(40,lnCount*5+16));
+  if(parsed.length)return Math.max(25,parsed[parsed.length-1].e+6);
+  return Math.max(25,photos.length*6+8);
+}
+
+function startPreview(){
+  cancelAnimationFrame(player.raf);
+  var sDur=computePreviewDur();
+  var ls=getActiveLines(sDur);
+  player.songDur=sDur;
+  player.totalDur=sDur+OUTRO_SEC;
+  player.vTime=0;player.inOutro=false;player.paused=false;player.open=true;
+  player.scene=createScene({
+    aspect:state.aspect,
+    lines:ls,
+    dur:sDur,
+    photos:photos,
+    getTheme:function(){return state.theme;},
+    getFxMode:function(){return state.fxMode;},
+    getBpm:function(){return +$('bp').value||100;},
+    getBeatMode:function(){return state.beatMode;},
+    getPhotoStyle:function(){return state.photoStyle;},
+    getTitle:function(){return $('ti').value;},
+    getSub:function(){return $('su').value;},
+    getTopOn:function(){return $('topOn').checked;}
+  });
+
+  $('seek').max=sDur.toFixed(2);
+  $('seek').value='0';
+  $('pbtn').textContent='⏸';
+  $('endBar').classList.remove('on');
+  $('show').classList.add('on');
+  resizeStage();
+  reqWake();
+
+  if(audio){
+    audio.loop=false;audio.currentTime=0;
+    audio.onended=function(){
+      player.inOutro=true;player.vTime=player.songDur;
+    };
+    var p=audio.play();if(p&&p.catch)p.catch(function(){});
+  }
+  player.lastNow=performance.now();
+  player.raf=requestAnimationFrame(previewLoop);
+}
+
+function stopPreview(){
+  player.open=false;player.paused=false;
+  cancelAnimationFrame(player.raf);player.raf=0;
+  if(audio){audio.pause();audio.onended=null;}
+  if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(function(){});
+  $('show').classList.remove('on','recording');
+  document.body.classList.remove('recording');
+  player.onEndRec=null;
+  relWake();
+}
+
+function togglePause(){
+  if(!player.open)return;
+  if(player.getTime()>=player.totalDur-0.05){startPreview();return;}
+  player.paused=!player.paused;
+  $('pbtn').textContent=player.paused?'▶':'⏸';
+  if(player.paused){
+    if(audio&&!player.inOutro)audio.pause();
+  }else{
+    if(audio&&!player.inOutro){var p=audio.play();if(p&&p.catch)p.catch(function(){});}
+    player.lastNow=performance.now();
+    cancelAnimationFrame(player.raf);
+    player.raf=requestAnimationFrame(previewLoop);
+  }
+}
+
+function seekPreview(newT){
+  if(!player.open)return;
+  newT=clamp(newT,0,player.songDur);
+  player.vTime=newT;player.inOutro=false;
+  $('endBar').classList.remove('on');
+  if(audio){
+    audio.currentTime=newT;
+    if(!player.paused){var p=audio.play();if(p&&p.catch)p.catch(function(){});}
+  }
+  player.scene.step(newT,1/60);
+  player.drawOnce();
+  $('tcur').textContent=mmss(newT)+' / '+mmss(player.songDur);
+}
+
+function previewLoop(now){
+  if(!player.open||player.paused)return;
+  var dt=Math.min(0.05,Math.max(0.001,(now-player.lastNow)/1000));
+  player.lastNow=now;
+
+  var t;
+  if(audio&&!player.inOutro){
+    t=audio.currentTime;
+    player.vTime=t;
+    if(t>=player.songDur){player.inOutro=true;}
+  }else{
+    player.vTime+=dt;
+    t=player.vTime;
+  }
+
+  player.scene.step(t,dt);
+  player.scene.draw(stCtx,stCv.width,stCv.height,t);
+
+  var shownT=Math.min(t,player.songDur);
+  $('seek').value=shownT;
+  $('tcur').textContent=mmss(shownT)+' / '+mmss(player.songDur);
+
+  if(t>=player.songDur&&!$('endBar').classList.contains('on')){
+    $('endBar').classList.add('on');
+  }
+  if(t>=player.totalDur){
+    player.paused=true;
+    $('pbtn').textContent='↺';
+    if(player.onEndRec){var cb=player.onEndRec;player.onEndRec=null;cb();}
+    return;
+  }
+  player.raf=requestAnimationFrame(previewLoop);
+}
+
+/* Preview Controls & Shortcuts */
+$('pv').onclick=startPreview;
+$('rp').onclick=startPreview;
+$('bk').onclick=stopPreview;
+$('x').onclick=stopPreview;
+$('pbtn').onclick=togglePause;
+stCv.onclick=togglePause;
+$('seek').oninput=function(){seekPreview(parseFloat(this.value)||0);};
+$('mu').onclick=function(){
+  if(!audio)return;
+  audio.muted=!audio.muted;
+  this.textContent=audio.muted?'🔇':'🔊';
+};
+$('fsBtn').onclick=function(){
+  var el=$('show');
+  if(!document.fullscreenElement){if(el.requestFullscreen)el.requestFullscreen().catch(function(){});}
+  else if(document.exitFullscreen)document.exitFullscreen().catch(function(){});
+};
+window.addEventListener('keydown',function(e){
+  if(sy.on){
+    if(e.code==='Space'||e.code==='Enter'){e.preventDefault();syTap();}
+    else if(e.code==='KeyB'||e.key==='0'){e.preventDefault();syBreak();}
+    else if(e.code==='Backspace'){e.preventDefault();$('sundo').click();}
+    else if(e.code==='Escape'){e.preventDefault();syClose();}
+    return;
+  }
+  if(player.open){
+    if(e.code==='Space'){e.preventDefault();togglePause();}
+    else if(e.code==='ArrowRight'){e.preventDefault();seekPreview(player.getTime()+5);}
+    else if(e.code==='ArrowLeft'){e.preventDefault();seekPreview(player.getTime()-5);}
+    else if(e.code==='Escape'){e.preventDefault();stopPreview();}
+  }
+});
+
+/* ===== Screen Recording (.webm) Fallback ===== */
+if(navigator.mediaDevices&&navigator.mediaDevices.getDisplayMedia&&window.MediaRecorder&&!/iPhone|iPad|Android/i.test(navigator.userAgent)){
+  $('rc').style.display='';
+}
+$('rc').onclick=async function(){
+  var st;
+  try{st=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:30},audio:true,preferCurrentTab:true,selfBrowserSurface:'include'});}
+  catch(e){return;}
+  var mt=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].filter(function(m){return MediaRecorder.isTypeSupported(m);})[0];
+  var rec=new MediaRecorder(st,{mimeType:mt,videoBitsPerSecond:6000000}),ch=[];
+  rec.ondataavailable=function(e){if(e.data&&e.data.size)ch.push(e.data);};
+  rec.onstop=function(){
+    st.getTracks().forEach(function(t){t.stop();});
+    stopPreview();
+    var u=URL.createObjectURL(new Blob(ch,{type:'video/webm'})),a=document.createElement('a');
+    a.href=u;a.download=(($('ti').value||'song').replace(/[^\w\u1780-\u17FF]+/g,'-'))+'.webm';
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(u);},30000);
+  };
+  player.onEndRec=function(){if(rec.state!=='inactive')rec.stop();};
+  $('show').classList.add('recording');document.body.classList.add('recording');
+  rec.start(1000);startPreview();
+  st.getVideoTracks()[0].addEventListener('ended',function(){if(rec.state!=='inactive')rec.stop();});
+};
+
+/* ===== Offline MP4 Export (WebCodecs H.264 + AAC + mp4-muxer) ===== */
+var exCancel=false;
+$('ec').onclick=function(){exCancel=true;};
+
+async function loadMuxer(){
+  if(window.Mp4Muxer)return;
+  var urls=[
+    'https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.3/build/mp4-muxer.js',
+    'https://unpkg.com/mp4-muxer@5.1.3/build/mp4-muxer.js'
+  ];
+  for(var i=0;i<urls.length;i++){
+    var ok=await new Promise(function(res){
+      var s=document.createElement('script');s.src=urls[i];
+      s.onload=function(){res(true);};s.onerror=function(){s.remove();res(false);};
+      document.head.appendChild(s);
+    });
+    if(ok&&window.Mp4Muxer)return;
+  }
+  throw new Error('ទាញយកបណ្ណាល័យ mp4-muxer មិនបាន សូមពិនិត្យការភ្ជាប់អ៊ីនធឺណិត');
+}
+
+async function safeLoadFonts(){
+  if(!document.fonts||!document.fonts.load)return;
+  var jobs=['700 40px "Kantumruy Pro"','400 40px "Moul"','400 40px "Pacifico"'].map(function(f){
+    return document.fonts.load(f).catch(function(){});
+  });
+  await Promise.race([Promise.all(jobs),new Promise(function(r){setTimeout(r,2500);})]);
+}
+
+async function findSupportedVideoConfig(aspect,maxTier,fps){
+  var tiers=[2160,1440,1080,720].filter(function(x){return x<=maxTier;});
+  if(!tiers.length)tiers=[1080,720];
+  var codecs=['avc1.640034','avc1.640033','avc1.640032','avc1.64002a','avc1.640028','avc1.4d0034','avc1.4d002a','avc1.420028'];
+  for(var t=0;t<tiers.length;t++){
+    var s=tiers[t],w,h;
+    if(aspect==='9:16'){w=s;h=Math.round(s*16/9);}
+    else if(aspect==='1:1'){w=s;h=s;}
+    else{w=Math.round(s*16/9);h=s;}
+    w=Math.round(w/2)*2;h=Math.round(h/2)*2;
+    var px=w*h;
+    var br=px>=3840*2160*0.8?12000000:px>=2560*1440*0.8?7000000:px>=1920*1080*0.8?4500000:2600000;
+    for(var c=0;c<codecs.length;c++){
+      var cfg={codec:codecs[c],width:w,height:h,bitrate:br,framerate:fps};
+      try{
+        var sup=await VideoEncoder.isConfigSupported(cfg);
+        if(sup&&sup.supported)return {cfg:cfg,tier:s};
+      }catch(e){}
+    }
+  }
+  return null;
+}
+
+$('mp').onclick=async function(){
+  if(!window.VideoEncoder||!window.AudioEncoder||!window.VideoFrame||!window.AudioData){
+    alert('Browser នេះមិនគាំទ្រ WebCodecs សម្រាប់ផលិត MP4 ទេ។ សូមប្រើ Google Chrome ឬ Microsoft Edge ជំនាន់ថ្មី!');
+    return;
+  }
+  if(!audioFile||!dur){
+    alert('សូមជ្រើសឯកសារចម្រៀង (MP3/WAV/M4A) ជាមុនសិន!');
+    return;
+  }
+  if(player.open)stopPreview();
+
+  var ov=$('exp'),msg=$('em'),bar=$('eb'),venc=null,aenc=null;
+  ov.classList.add('on');exCancel=false;
+  msg.textContent='កំពុងរៀបចំបណ្ណាល័យ និងពុម្ពអក្សរ...';
+  bar.style.width='0%';
+  await reqWake();
+
+  try{
+    await loadMuxer();
+    await safeLoadFonts();
+    clearLayoutCache();
+
+    var FPS=30,askTier=+$('rs').value||1080;
+    var found=await findSupportedVideoConfig(state.aspect,askTier,FPS);
+    if(!found)throw new Error('ឧបករណ៍នេះមិនគាំទ្រការអ៊ិនកូដវីដេអូ H.264 ក្នុងទំហំនេះទេ');
+    var cfg=found.cfg,w=cfg.width,h=cfg.height;
+    if(found.tier<askTier){
+      msg.textContent='⚠ ឧបករណ៍គាំទ្រត្រឹម '+w+'×'+h+' · កំពុងបន្ត...';
+    }
+
+    /* Decode audio fresh & configure AAC encoder */
+    msg.textContent='កំពុងបំប្លែងសម្លេង AAC...';
+    var ab=await audioFile.arrayBuffer();
+    var AC=window.AudioContext||window.webkitAudioContext;
+    var ac=new AC();
+    var buf=await ac.decodeAudioData(ab);
+    await ac.close();
+    ab=null;
+
+    var sr=buf.sampleRate,acfg=null;
+    var bitrates=[192000,128000,96000];
+    for(var bi=0;bi<bitrates.length;bi++){
+      var cand={codec:'mp4a.40.2',sampleRate:sr,numberOfChannels:2,bitrate:bitrates[bi]};
+      try{if((await AudioEncoder.isConfigSupported(cand)).supported){acfg=cand;break;}}catch(e){}
+    }
+    if(!acfg)throw new Error('Browser មិនគាំទ្រការអ៊ិនកូដសម្លេង AAC ('+sr+'Hz) ទេ');
+
+    var totalSec=dur+OUTRO_SEC;
+    var fail=null;
+    var mux=new Mp4Muxer.Muxer({
+      target:new Mp4Muxer.ArrayBufferTarget(),
+      video:{codec:'avc',width:w,height:h},
+      audio:{codec:'aac',numberOfChannels:2,sampleRate:sr},
+      fastStart:'in-memory',
+      firstTimestampBehavior:'offset'
+    });
+
+    venc=new VideoEncoder({output:function(c,m){mux.addVideoChunk(c,m);},error:function(e){fail=e;}});
+    venc.configure(cfg);
+    aenc=new AudioEncoder({output:function(c,m){mux.addAudioChunk(c,m);},error:function(e){fail=e;}});
+    aenc.configure(acfg);
+
+    /* Encode audio + silent outro padding, closing every AudioData & respecting queue size */
+    var Lc=buf.getChannelData(0),Rc=buf.numberOfChannels>1?buf.getChannelData(1):Lc;
+    var pcmLen=buf.length,totalSamples=Math.ceil(totalSec*sr),chunkSz=Math.round(sr*0.5);
+    for(var o=0;o<totalSamples;o+=chunkSz){
+      if(exCancel)throw new Error('បានបោះបង់ការផលិតវីដេអូ');
+      if(fail)throw fail;
+      var m=Math.min(chunkSz,totalSamples-o);
+      var d=new Float32Array(m*2);
+      if(o<pcmLen){
+        var copyN=Math.min(m,pcmLen-o);
+        d.set(Lc.subarray(o,o+copyN),0);
+        d.set(Rc.subarray(o,o+copyN),m);
+      }
+      var ad=new AudioData({
+        format:'f32-planar',sampleRate:sr,
+        numberOfFrames:m,numberOfChannels:2,
+        timestamp:Math.round(o/sr*1e6),data:d
+      });
+      aenc.encode(ad);
+      ad.close();
+      while(aenc.encodeQueueSize>16){await fastYield();if(fail)throw fail;}
+    }
+    /* Free ~80-100 MB PCM buffer before heavy 4K video rendering */
+    buf=null;Lc=null;Rc=null;
+
+    /* Set up Unified Scene Renderer for MP4 */
+    var cv2=document.createElement('canvas');cv2.width=w;cv2.height=h;
+    var g=cv2.getContext('2d');
+    var ls=getActiveLines(dur);
+    var expScene=createScene({
+      aspect:state.aspect,
+      lines:ls,
+      dur:dur,
+      photos:photos,
+      getTheme:function(){return state.theme;},
+      getFxMode:function(){return state.fxMode;},
+      getBpm:function(){return +$('bp').value||100;},
+      getBeatMode:function(){return state.beatMode;},
+      getPhotoStyle:function(){return state.photoStyle;},
+      getTitle:function(){return $('ti').value;},
+      getSub:function(){return $('su').value;},
+      getTopOn:function(){return $('topOn').checked;}
+    });
+
+    var totalFrames=Math.ceil(totalSec*FPS),tStart=performance.now();
+    for(var f=0;f<totalFrames;f++){
+      if(exCancel)throw new Error('បានបោះបង់ការផលិតវីដេអូ');
+      if(fail)throw fail;
+      var t=f/FPS;
+      expScene.step(t,1/FPS);
+      expScene.draw(g,w,h,t);
+
+      var vf=new VideoFrame(cv2,{
+        timestamp:Math.round(f*1e6/FPS),
+        duration:Math.round(1e6/FPS)
+      });
+      venc.encode(vf,{keyFrame:f%60===0});
+      vf.close();
+
+      while(venc.encodeQueueSize>8){
+        await fastYield();
+        if(exCancel)throw new Error('បានបោះបង់ការផលិតវីដេអូ');
+        if(fail)throw fail;
+      }
+      if(f%15===0){
+        var pr=f/totalFrames,el=(performance.now()-tStart)/1000;
+        bar.style.width=(pr*100).toFixed(1)+'%';
+        var eta=pr>0.02?mmss(el/pr-el):'...';
+        msg.textContent='វីដេអូ '+w+'×'+h+' ('+state.aspect+') · '+(pr*100).toFixed(0)+'% · នៅសល់ប្រហែល '+eta;
+        await uiYield();
+      }
+    }
+
+    msg.textContent='កំពុងបញ្ចប់ និងរៀបចំឯកសារ MP4...';
+    bar.style.width='100%';
+    await venc.flush();
+    await aenc.flush();
+    if(fail)throw fail;
+    mux.finalize();
+
+    var blob=new Blob([mux.target.buffer],{type:'video/mp4'});
+    var dlUrl=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=dlUrl;
+    var tag=state.aspect.replace(':','x')+'-'+h+'p';
+    a.download=(($('ti').value||'song').replace(/[^\w\u1780-\u17FF]+/g,'-'))+'-'+tag+'.mp4';
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(dlUrl);},60000);
+
+    msg.textContent='✅ ផលិតជោគជ័យ! ('+MB(blob.size)+')';
+    await new Promise(function(r){setTimeout(r,1400);});
+  }catch(e){
+    var mErr=e&&e.message?e.message:String(e);
+    if(mErr.indexOf('បានបោះបង់')===-1)alert('បង្កើត MP4 មិនបាន៖ '+mErr);
+  }finally{
+    try{if(venc&&venc.state!=='closed')venc.close();}catch(e){}
+    try{if(aenc&&aenc.state!=='closed')aenc.close();}catch(e){}
+    relWake();
+    ov.classList.remove('on');
+  }
+};
+})();
+</script>
+</body>
+</html>
