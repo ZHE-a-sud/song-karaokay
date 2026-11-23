@@ -439,10 +439,11 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
         </div>
         <small class="hint">👫 <b>Duet Mode</b>៖ ដាក់ <b>[1]</b> ឬ <b>[2]</b> នៅមុខឃ្លា (ឧ. <code>[1] បងស្រីអើយ</code>) → ឈ្មោះ និងពណ៌បង្ហាញខុសគ្នាស្វ័យប្រវត្តិ!</small>
         <div class="row" style="margin-top:8px">
-          <button type="button" class="alt sm" id="autoLyr" style="flex:1 1 200px" title="វិភាគសំលេងច្រៀងក្នុងភ្លេង រួចដាក់ម៉ោងឃ្លាដោយស្វ័យប្រវត្តិ">🪄 ដាក់ម៉ោងស្វ័យប្រវត្តិ</button>
+          <button type="button" class="alt sm" id="autoLyr" style="flex:1 1 200px" title="វិភាគសំលេងច្រៀង (Band-pass + រាប់ព្យាង្គខ្មែរ + DP Alignment) រួចដាក់ម៉ោងឃ្លាដោយស្វ័យប្រវត្តិ">🪄 ដាក់ម៉ោងស្វ័យប្រវត្តិ</button>
           <button type="button" class="alt sm" id="lyrUndo" style="display:none">↶ ត្រឡប់ដើមវិញ</button>
         </div>
         <small class="hint" id="lyrStat" style="display:none"></small>
+        <small class="hint">💡 ក្បួនថ្មី៖ រាប់<b>ព្យាង្គខ្មែរ</b> (តួព្យញ្ជនៈ) + ញែកសំលេងច្រៀងពី Bass + <b>DP Alignment</b> — ត្រូវនឹងជំហានច្រៀងភាគច្រើន! បើឃ្លាណាមួយខុសបន្តិច កែលេខម៉ោងខាងមុខឃ្លាដោយដៃបានភ្លាម។</small>
       </div>
     </div>
   </div>
@@ -3820,68 +3821,149 @@ $('autoLyr').onclick=async function(){
     var sr=buf.sampleRate,L=buf.getChannelData(0),R=buf.getChannelData(1);
     var hop=Math.round(sr*0.05),win=2048;
     var nF=Math.max(1,Math.floor((buf.length-win)/hop));
-    var scores=new Float32Array(nF),mids=new Float32Array(nF);
+    /* 1. Vocal-band isolation: band = mid − lowpassed (keeps voice, rejects bass/beat) */
+    var band=new Float32Array(nF),low=new Float32Array(nF);
     for(var f=0;f<nF;f++){
-      var off=f*hop,m2=0,s2=0;
+      var off=f*hop,m2=0,l2=0,lp2=0;
       for(var i=0;i<win;i+=2){
-        var l=L[off+i],r=R[off+i];
-        var mv=l+r,sv=l-r;
-        m2+=mv*mv;s2+=sv*sv;
+        var v=(L[off+i]+R[off+i])*0.5;
+        lp2+=0.12*(v-lp2);
+        var hv=v-lp2;
+        m2+=hv*hv;l2+=lp2*lp2;
       }
-      var mid=Math.sqrt(m2/(win/2)),side=Math.sqrt(s2/(win/2));
-      mids[f]=mid;scores[f]=mid/(side+0.004);
-      if(f%400===0){bar.style.width=(f/nF*45).toFixed(0)+'%';await uiYield();}
+      band[f]=Math.sqrt(m2/(win/2));low[f]=Math.sqrt(l2/(win/2));
+      if(f%500===0){bar.style.width=(f/nF*35).toFixed(0)+'%';await uiYield();}
     }
-    var sorted=Array.prototype.slice.call(scores).sort();
-    var base=sorted[Math.floor(sorted.length*0.5)]||1;
+    /* 2. Adaptive threshold (percentile-based: quiet verse + loud chorus both work) */
+    var sorted=Array.prototype.slice.call(band).sort();
+    var p50=sorted[Math.floor(sorted.length*0.50)]||1;
+    var p88=sorted[Math.floor(sorted.length*0.88)]||1;
+    var thr=Math.max(p50*1.32,p88*0.52,0.004);
     var act=new Uint8Array(nF);
-    for(var f2=0;f2<nF;f2++)act[f2]=(scores[f2]>base*1.28&&mids[f2]>0.012)?1:0;
-    var segs=[],st=-1,gap=0;
+    for(var f2=0;f2<nF;f2++)act[f2]=(band[f2]>thr&&band[f2]>low[f2]*0.42)?1:0;
+    /* median smooth (removes flicker) */
+    var act2=new Uint8Array(nF);
     for(var f3=0;f3<nF;f3++){
-      if(act[f3]){if(st<0)st=f3;gap=0;}
+      var c2=0;
+      for(var w3=-2;w3<=2;w3++){var fi=f3+w3;if(fi>=0&&fi<nF)c2+=act[fi];}
+      act2[f3]=c2>=3?1:0;
+    }
+    /* 3. Vocal segments (min on 0.85s · merge gaps < 0.75s · drop < 0.9s) */
+    var segs=[],st=-1,gap=0,minOn=17,mgap=15;
+    for(var f4=0;f4<nF;f4++){
+      if(act2[f4]){if(st<0)st=f4;gap=0;}
       else if(st>=0){
         gap++;
-        if(gap>=16){segs.push([st*0.05,(f3-gap+1)*0.05]);st=-1;gap=0;}
+        if(gap>=mgap){segs.push([st,(f4-gap+1)]);st=-1;gap=0;}
       }
     }
-    if(st>=0)segs.push([st*0.05,nF*0.05]);
-    segs=segs.filter(function(s){return s[1]-s[0]>=1.3;});
-    var N=raw.length,out=[],stat='';
-    if(segs.length>=N){
-      for(var li=0;li<N;li++){
-        var t0=segs[li][0],e0=li<N-1?segs[li+1][0]:Math.min(segs[li][1]+3,buf.duration);
-        out.push(fmtLrc(t0)+' '+raw[li]);
+    if(st>=0)segs.push([st,nF]);
+    segs=segs.filter(function(s2){return s2[1]-s2[0]>=minOn;});
+    var merged=[];
+    for(var s3=0;s3<segs.length;s3++){
+      if(merged.length&&segs[s3][0]-merged[merged.length-1][1]<mgap)merged[merged.length-1][1]=segs[s3][1];
+      else merged.push(segs[s3]);
+    }
+    segs=merged.filter(function(s2){return s2[1]-s2[0]>=minOn;});
+    /* 4. Khmer syllable weight — តួព្យញ្ជនៈ ≈ ព្យាង្គ (ច្បាស់ជាងចំនួនតួអក្សរ!) */
+    function khmerWeight(s){
+      var w=0;
+      for(var i3=0;i3<s.length;i3++){
+        var c=s.charCodeAt(i3);
+        if(c>=0x1780&&c<=0x17A2)w+=1;         /* Khmer consonant ≈ 1 syllable */
+        else if(c>=0x17B6&&c<=0x17C5)w+=0.25; /* vowel marks */
+        else if(c===32)w+=0.22;               /* space pause */
+        else if(c<128)w+=0.4;                 /* latin letters/digits */
+        else w+=0.08;
       }
-      stat='✅ ដាក់ម៉ោង '+N+' ឃ្លាស្វ័យប្រវត្តិ (រកឃើញ '+segs.length+' ជំហានសំលេងច្រៀង)';
-    }else if(segs.length>0){
-      var totalV=0;
-      for(var si2=0;si2<segs.length;si2++)totalV+=segs[si2][1]-segs[si2][0];
-      var chars=raw.map(function(s){return Math.max(4,s.length);});
-      var tot=chars.reduce(function(a,b){return a+b;},0),cursor=0;
-      for(var li2=0;li2<N;li2++){
-        var ld=totalV*chars[li2]/tot;
-        var absT=function(x){
-          var acc2=0;
-          for(var k2=0;k2<segs.length;k2++){
-            var len2=segs[k2][1]-segs[k2][0];
-            if(acc2+len2>=x)return segs[k2][0]+(x-acc2);
-            acc2+=len2;
+      return Math.max(0.8,w);
+    }
+    var N=raw.length,stat='';
+    if(segs.length>=1){
+      var frT=function(fi){return Math.min(buf.duration,fi*hop/sr);};
+      /* cumulative ACTIVE-time axis (instrumental gaps compress to zero) */
+      var cum=new Float64Array(nF+1);
+      for(var f5=0;f5<nF;f5++)cum[f5+1]=cum[f5]+act2[f5];
+      var totalActive=cum[nF];
+      var wts=raw.map(khmerWeight),wSum=0;
+      for(var w4=0;w4<wts.length;w4++)wSum+=wts[w4];
+      /* target time for each line boundary on active-time axis → real time */
+      function activeToTime(aT){
+        if(totalActive<=0)return buf.duration/N;
+        for(var k3=1;k3<=nF;k3++){
+          if(cum[k3]>aT){
+            var back=aT-cum[k3-1];
+            return frT(k3-1)+((act2[k3-1])?(back*hop/sr):0);
           }
-          return segs[segs.length-1][1];
-        };
-        out.push(fmtLrc(absT(cursor))+' '+raw[li2]);
-        cursor+=ld;
+        }
+        return frT(nF);
       }
-      stat='✅ ដាក់ម៉ោង '+N+' ឃ្លាចាប់ផ្ដែច្រៀង ('+segs.length+' ជំហាន · ដាក់ពាយព្យក្នុងជំហាន)';
-    }else{
-      stat='⚠️ មិនអាចរកសំលេងច្រៀងច្បាស់ — សូមប្រើ Tap-to-Sync ដោយដៃជំនួស';
-      out=null;
-    }
-    if(out){
+      var bounds=[],acc=0,snapOK=0;
+      var M=segs.length;
+      if(M>=N){
+        /* 5a. DP alignment — ដាក់ឃ្លាទៅជំហានសំលេងដោយ Duration Matching (ត្រឹមត្រូវខ្ពស់) */
+        var durAct=segs.map(function(s2){return s2[1]-s2[0];});
+        var scale=totalActive/wSum||1;
+        var INF=1e15;
+        var dp=[],from=[];
+        for(var i6=0;i6<N;i6++){dp.push(new Float64Array(M));from.push(new Int16Array(M));}
+        for(var j6=0;j6<M;j6++)dp[0][j6]=(j6<=M-N)?Math.pow(durAct[j6]-wts[0]*scale,2):INF;
+        for(var i7=1;i7<N;i7++){
+          for(var j7=i7;j7<M-(N-1-i7);j7++){
+            var best6=INF,bj=-1;
+            for(var k5=i7-1;k5<j7;k5++){
+              if(dp[i7-1][k5]<best6){best6=dp[i7-1][k5];bj=k5;}
+            }
+            dp[i7][j7]=best6+Math.pow(durAct[j7]-wts[i7]*scale,2);
+            from[i7][j7]=bj;
+          }
+        }
+        var lastJ=N-1;
+        for(var j8=N-1;j8<M;j8++)if(dp[N-1][j8]<dp[N-1][lastJ])lastJ=j8;
+        var assign=new Array(N);
+        var jj2=lastJ;
+        for(var i8=N-1;i8>=0;i8--){assign[i8]=jj2;jj2=from[i8][jj2];}
+        for(var i9=0;i9<N;i9++){
+          var b9=frT(segs[assign[i9]][0]);
+          if(i9>0&&b9<bounds[i9-1]+1.2)b9=bounds[i9-1]+1.2;
+          bounds.push(Math.min(b9,buf.duration-1));
+        }
+        snapOK=N;
+      }else{
+        /* 5b. Distribute by weight on active-time axis + valley snap */
+        for(var li=0;li<N;li++){
+          var target=activeToTime(acc);
+          var tf=Math.round(target*sr/hop),best=tf,bestV=1e9;
+          for(var k4=-17;k4<=17;k4++){
+            var fi2=tf+k4;
+            if(fi2<0||fi2>=nF)continue;
+            if(band[fi2]<bestV){bestV=band[fi2];best=fi2;}
+          }
+          if(bestV<=band[tf]*1.02||Math.abs(best-tf)<=6)snapOK++;
+          bounds.push(Math.min(frT(nF-1),frT(best)));
+          acc+=wts[li]/wSum*totalActive;
+        }
+        bounds[0]=Math.max(bounds[0],frT(segs[0][0]));
+      }
+      /* enforce monotonic + min 1.2s per line */
+      for(var mb=1;mb<N;mb++){
+        if(bounds[mb]<bounds[mb-1]+1.2)bounds[mb]=bounds[mb-1]+1.2;
+        if(bounds[mb]>buf.duration-1)bounds[mb]=buf.duration-1;
+      }
+      var out=[];
+      for(var li2=0;li2<N;li2++){
+        var t0=bounds[li2];
+        var tEnd=li2<N-1?bounds[li2+1]:Math.min(bounds[li2]+6,buf.duration);
+        if(tEnd<=t0)tEnd=t0+2;
+        out.push(fmtLrc(t0)+' '+raw[li2]);
+      }
+      stat='✅ ដាក់ម៉ោង '+N+' ឃ្លា · ជំហានសំលេង '+segs.length+' · រង្វាមជាប់ '+snapOK+'/'+N;
       if(!$('lyrUndo')._prev)$('lyrUndo')._prev=$('ly0').value;
       $('ly0').value=out.join('\n');
       $('lyrUndo').style.display='';
       saveDraft();
+    }else{
+      stat='⚠️ មិនអាចរកសំលេងច្រៀងច្បាស់ — សូមប្រើ Tap-to-Sync ដោយដៃជំនួស';
     }
     $('lyrStat').textContent=stat;
     $('lyrStat').style.display='';
@@ -4656,5 +4738,5 @@ $('mp').onclick=async function(){
 };
 })();
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5ed841c4a57c662',t:'MTc5NTQwOTAzOA=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5ed841c4a57c662',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5eda0e27ced6598',t:'MTc5NTQxMDIxNw=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5eda0e27ced6598',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
